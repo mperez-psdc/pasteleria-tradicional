@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: pasteleria-tradicional
+    runtime: static
+    buildCommand: echo static
+    staticPublishPath: .
+    branch: main
