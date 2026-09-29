@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Marketing · Pastelería Tradicional</title>
+  <link rel="stylesheet" href="../css/estilos.css">
+</head>
+<body>
+  <div id="marco"></div>
+  <script src="../js/datos.js"></script>
+  <script src="../js/comun.js"></script>
+  <script>
+    const UI = PasteleriaUI;
+    const Datos = Pasteleria;
+    if (UI.iniciar({ rol: "gerencia", titulo: "Marketing", fase: "Fase 2 y 4" })) pintar();
+
+    function pintar() {
+      const datos = Datos.cargar();
+      const filas = datos.clientes.map(function (cliente) {
+        return "<tr><td>" + UI.esc(cliente.nombre) + "</td><td>" + UI.esc(cliente.canal) + "</td><td>" + (cliente.consentimiento ? "Sí" : "No") + "</td></tr>";
+      }).join("");
+      const envios = datos.campanas.slice().reverse().map(function (campana) {
+        return "<li><strong>" + UI.esc(campana.asunto) + "</strong> · " + UI.esc(campana.destinatarios.join(", ")) + " · " + UI.esc(campana.nota) + "</li>";
+      }).join("");
+      UI.contenido().innerHTML =
+        '<div class="rejilla-2">' +
+          '<section class="panel"><h2>Presencia · fase 2</h2><ul class="lista">' +
+            '<li>Publicar dirección, horario y qué se puede encargar. El retiro es en el local.</li>' +
+            '<li>No prometer domicilio: no hay repartidor.</li>' +
+            '<li>La vitrina pública ya recoge datos nuevos, con la casilla de publicidad aparte.</li>' +
+            '<li>Fotos del producto, no de las recetas.</li>' +
+          "</ul></section>" +
+          '<form class="panel" id="correo"><h2>Correo · fase 4</h2><p class="ayuda">Solo entra quien marcó la casilla. El envío es simulado.</p>' +
+            '<label>Asunto<input name="asunto" required maxlength="80" value="Retiro de fin de semana"></label>' +
+            '<label>Mensaje<textarea name="cuerpo" required maxlength="240">Esta semana hay combo con las galletas de mantequilla, que están saliendo menos. Retiro en el local.</textarea></label>' +
+            '<button type="submit">Simular envío</button></form>' +
+        "</div>" +
+        '<section class="panel" style="margin-top:1rem"><h2>Permisos</h2><div class="tabla-wrap"><table><thead><tr><th>Cliente</th><th>Canal</th><th>Acepta marketing</th></tr></thead><tbody>' + filas + "</tbody></table></div></section>" +
+        '<section class="panel" style="margin-top:1rem"><h2>Campañas simuladas</h2>' + (envios ? "<ul class='lista'>" + envios + "</ul>" : "<p>Todavía no hay ninguna.</p>") + "</section>";
+      document.getElementById("correo").addEventListener("submit", function (evento) {
+        evento.preventDefault();
+        const forma = new FormData(evento.target);
+        const resultado = Datos.enviarCampana(forma.get("asunto"), forma.get("cuerpo"));
+        if (!resultado.ok) {
+          UI.mensaje(resultado.error, "error");
+          return;
+        }
+        const nota = resultado.campana.nota + " Destinatarios: " + resultado.campana.destinatarios.join(", ") + ".";
+        pintar();
+        UI.mensaje(nota, "ok");
+      });
+    }
+  </script>
+</body>
+</html>

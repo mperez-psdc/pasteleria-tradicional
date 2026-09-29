@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Panel · Pastelería Tradicional</title>
+  <link rel="stylesheet" href="../css/estilos.css">
+</head>
+<body>
+  <div id="marco"></div>
+  <script src="../js/datos.js"></script>
+  <script src="../js/comun.js"></script>
+  <script>
+    const UI = PasteleriaUI;
+    const Datos = Pasteleria;
+    if (UI.iniciar({ rol: "gerencia", titulo: "Panel", fase: "Fase 1" })) {
+      const datos = Datos.cargar();
+      const resumen = Datos.resumen(datos);
+      const estados = resumen.porEstado;
+      const baja = resumen.bajaRotacion.map(function (producto) {
+        return "<li>" + UI.esc(producto.nombre) + ": " + producto.stock + " en vitrina</li>";
+      }).join("");
+      const quejas = datos.pedidos.filter(function (pedido) { return pedido.queja; });
+      UI.contenido().innerHTML =
+        '<p class="ayuda">Estas cifras salen de lo registrado en el prototipo, no de un estado financiero. Sirven para decidir si la fase siguiente se enciende.</p>' +
+        '<div class="tarjetas">' +
+          '<article class="tarjeta"><p class="ayuda">Cobros de hoy</p><p class="kpi">' + UI.esc(Datos.dinero(resumen.ventaHoy)) + '</p></article>' +
+          '<article class="tarjeta"><p class="ayuda">Pedidos en cola</p><p class="kpi">' + (estados.recibido + estados.en_produccion + estados.listo) + '</p></article>' +
+          '<article class="tarjeta"><p class="ayuda">Opinión media</p><p class="kpi">' + (resumen.promedio === null ? "—" : resumen.promedio + "/5") + "</p><p class='ayuda'>" + resumen.opiniones + " calificaciones</p></article>" +
+          '<article class="tarjeta"><p class="ayuda">Entregas con fecha, a tiempo</p><p class="kpi">' + (resumen.cumplimiento === null ? "—" : resumen.cumplimiento + "%") + '</p></article>' +
+          '<article class="tarjeta"><p class="ayuda">Tareas atrasadas</p><p class="kpi">' + resumen.tareasAtrasadas + '</p></article>' +
+        "</div>" +
+        '<div class="rejilla-2" style="margin-top:1rem">' +
+          '<section class="panel"><h2>Por estado</h2><ul class="lista"><li>Recibidos: ' + estados.recibido + "</li><li>En producción: " + estados.en_produccion + "</li><li>Listos: " + estados.listo + "</li><li>Entregados: " + estados.entregado + "</li><li>Anulados: " + estados.anulado + "</li></ul></section>" +
+          '<section class="panel"><h2>Baja rotación</h2><ul class="lista">' + (baja || "<li>No hay productos marcados.</li>") + '</ul><p class="ayuda">Primero combo o menos producción. No se empuja lo vencido.</p></section>' +
+        "</div>" +
+        '<section class="panel" style="margin-top:1rem"><h2>Quejas abiertas en el registro</h2>' +
+          (quejas.length ? "<ul class='lista'>" + quejas.map(function (pedido) { return "<li>" + UI.esc(pedido.numero) + ": " + UI.esc(pedido.queja.texto) + "</li>"; }).join("") + "</ul>" : "<p>No hay quejas anotadas.</p>") +
+        "</section>";
+    }
+  </script>
+</body>
+</html>

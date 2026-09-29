@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Catálogo · Pastelería Tradicional</title>
+  <link rel="stylesheet" href="../css/estilos.css">
+</head>
+<body>
+  <div id="marco"></div>
+  <script src="../js/datos.js"></script>
+  <script src="../js/comun.js"></script>
+  <script>
+    const UI = PasteleriaUI;
+    const Datos = Pasteleria;
+    if (UI.iniciar({ rol: "cliente", titulo: "Catálogo", fase: "Fase 3" })) pintar();
+
+    function pintar() {
+      const datos = Datos.cargar();
+      const cartas = datos.productos.map(function (producto) {
+        const estado = Datos.disponibilidad(producto);
+        let texto = "Para encargar con fecha";
+        if (estado === "agotado") texto = "Agotado en vitrina";
+        if (estado === "pocas") texto = "Quedan pocas";
+        if (estado === "disponible") texto = "Disponible";
+        const baja = producto.rotacion === "baja" && producto.tipo === "estandar" ? ' <span class="baja">Sale poco</span>' : "";
+        return '<article class="tarjeta"><h3>' + UI.esc(producto.nombre) + baja + '</h3><p>' + UI.esc(producto.descripcion) + '</p><p class="precio">' + UI.esc(Datos.dinero(producto.precio)) + '</p><p class="ayuda">' + texto + '</p></article>';
+      }).join("");
+      UI.contenido().innerHTML =
+        '<div class="panel">' + UI.htmlClienteActivo(datos) + '<p class="ayuda">El stock exacto se ve en mostrador y gerencia. Aquí solo se dice si se puede pedir.</p></div>' +
+        '<div class="tarjetas" style="margin-top:1rem">' + cartas + '</div>' +
+        '<p style="margin-top:1rem"><a class="boton" href="pedido.html">Hacer un pedido</a></p>';
+      document.getElementById("cliente-activo").addEventListener("change", function (evento) {
+        UI.fijarClienteActivo(evento.target.value);
+      });
+    }
+  </script>
+</body>
+</html>

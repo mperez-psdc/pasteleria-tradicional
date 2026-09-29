@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cocina · Pastelería Tradicional</title>
+  <link rel="stylesheet" href="../css/estilos.css">
+</head>
+<body>
+  <div id="marco"></div>
+  <script src="../js/datos.js"></script>
+  <script src="../js/comun.js"></script>
+  <script>
+    const UI = PasteleriaUI;
+    const Datos = Pasteleria;
+    if (UI.iniciar({ rol: "pastelero", titulo: "Tablero de cocina", fase: "Fase 1" })) {
+      const caja = UI.contenido();
+      caja.addEventListener("change", function (evento) {
+        if (evento.target.id !== "quien") return;
+        UI.fijarPasteleroActivo(evento.target.value);
+        pintar();
+      });
+      caja.addEventListener("click", function (evento) {
+        const boton = evento.target.closest("[data-tarea]");
+        if (!boton) return;
+        const resultado = Datos.terminarTarea(boton.getAttribute("data-tarea"), UI.pasteleroActivo());
+        if (!resultado.ok) {
+          UI.mensaje(resultado.error, "error");
+          return;
+        }
+        pintar();
+        UI.mensaje(resultado.aTiempo ? "Quedó listo y dentro de la fecha." : "Quedó listo, fuera de la fecha prometida. El pedido pasa a mostrador.", "ok");
+      });
+      pintar();
+    }
+
+    function pintar() {
+      const datos = Datos.cargar();
+      const activo = UI.pasteleroActivo();
+      const opciones = datos.pasteleros.map(function (persona) {
+        const abiertas = Datos.tareasAbiertas(datos, persona.id).length;
+        const marca = persona.id === activo ? " selected" : "";
+        return '<option value="' + UI.esc(persona.id) + '"' + marca + ">" + UI.esc(persona.nombre) + " · " + abiertas + "/" + Datos.MAX_TAREAS + " abiertas</option>";
+      }).join("");
+      const carga = datos.pasteleros.map(function (persona) {
+        const abiertas = Datos.tareasAbiertas(datos, persona.id);
+        return "<li><strong>" + UI.esc(persona.nombre) + "</strong>: " + abiertas.length + " de " + Datos.MAX_TAREAS + (abiertas.length >= Datos.MAX_TAREAS ? " · sin cupo" : " · puede recibir") + "</li>";
+      }).join("");
+      const tareas = datos.tareas.slice().sort(function (a, b) { return a.fechaEntrega < b.fechaEntrega ? -1 : 1; });
+      const filas = tareas.map(function (tarea) {
+        const persona = datos.pasteleros.find(function (item) { return item.id === tarea.pasteleroId; });
+        const pedido = datos.pedidos.find(function (item) { return item.id === tarea.pedidoId; });
+        const atrasada = tarea.estado === "pendiente" && tarea.fechaEntrega < Datos.hoy();
+        const mia = tarea.pasteleroId === UI.pasteleroActivo() && tarea.estado === "pendiente";
+        const marcaTiempo = tarea.estado === "terminada" ? (tarea.aTiempo ? "A tiempo" : "Fuera de fecha") : (atrasada ? "Atrasada" : "En plazo");
+        return "<tr" + (atrasada ? ' class="atrasada"' : "") + "><td>" + UI.esc(pedido ? pedido.numero : "—") + "</td><td>" + UI.esc(tarea.descripcion) + "</td><td>" + UI.esc(persona ? persona.nombre : "—") + "</td><td>" + UI.esc(Datos.fechaCorta(tarea.fechaEntrega)) + "</td><td>" + UI.esc(marcaTiempo) + "</td><td>" +
+          (mia ? '<button type="button" data-tarea="' + UI.esc(tarea.id) + '">Marcar listo</button>' : UI.esc(tarea.estado)) +
+          "</td></tr>";
+      }).join("");
+      UI.contenido().innerHTML =
+        '<p class="ayuda">Esto coordina fechas y entregas. No es un ranking para colgar en el local. El resumen del mes está en gerencia, fase 4.</p>' +
+        '<div class="rejilla-2">' +
+          '<div class="panel"><label>Estoy trabajando como<select id="quien">' + opciones + "</select></label><p class='ayuda'>Solo puede cerrar sus propias tareas.</p></div>" +
+          '<div class="panel"><h2>Cupo de hoy</h2><ul class="lista">' + carga + "</ul></div>" +
+        "</div>" +
+        '<div class="panel" style="margin-top:1rem"><div class="tabla-wrap"><table><thead><tr><th>Pedido</th><th>Tarea</th><th>Pastelero</th><th>Fecha</th><th>Plazo</th><th></th></tr></thead><tbody>' + filas + "</tbody></table></div></div>";
+    }
+  </script>
+</body>
+</html>

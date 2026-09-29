@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Inventario · Pastelería Tradicional</title>
+  <link rel="stylesheet" href="../css/estilos.css">
+</head>
+<body>
+  <div id="marco"></div>
+  <script src="../js/datos.js"></script>
+  <script src="../js/comun.js"></script>
+  <script>
+    const UI = PasteleriaUI;
+    const Datos = Pasteleria;
+    if (UI.iniciar({ rol: "gerencia", titulo: "Inventario", fase: "Fase 1" })) pintar();
+
+    function pintar() {
+      const datos = Datos.cargar();
+      const productos = datos.productos.filter(function (producto) { return producto.tipo === "estandar"; }).map(function (producto) {
+        const alerta = producto.stock <= 0 ? " class='atrasada'" : "";
+        const baja = producto.rotacion === "baja" ? ' <span class="baja">Baja rotación</span>' : "";
+        return "<tr" + alerta + "><td>" + UI.esc(producto.nombre) + baja + "</td><td>" + producto.stock + "</td><td>" + UI.esc(Datos.dinero(producto.precio)) + "</td></tr>";
+      }).join("");
+      const insumos = datos.insumos.map(function (insumo) {
+        const bajo = insumo.cantidad < insumo.minimo;
+        const porVencer = insumo.vence <= Datos.sumarDias(Datos.hoy(), 7);
+        const vencido = insumo.vence < Datos.hoy();
+        const marcas = [bajo ? "Bajo mínimo" : "", porVencer ? "Por vencer" : "", vencido ? "Vencido" : ""].filter(Boolean).join(" · ");
+        return "<tr" + (bajo || vencido ? " class='atrasada'" : "") + "><td>" + UI.esc(insumo.nombre) + "</td><td>" + insumo.cantidad + " " + UI.esc(insumo.unidad) + "</td><td>" + insumo.minimo + "</td><td>" + UI.esc(Datos.fechaCorta(insumo.vence)) + "</td><td>" + UI.esc(marcas || "En orden") + "</td></tr>";
+      }).join("");
+      const opciones = datos.insumos.map(function (insumo) {
+        return '<option value="' + UI.esc(insumo.id) + '">' + UI.esc(insumo.nombre) + "</option>";
+      }).join("");
+      const mermas = datos.mermas.slice().reverse().map(function (merma) {
+        return "<li>" + UI.esc(Datos.fechaCorta(merma.fecha)) + " · " + UI.esc(merma.nombre) + " · " + merma.cantidad + " " + UI.esc(merma.unidad) + " · " + UI.esc(merma.motivo) + "</li>";
+      }).join("");
+      UI.contenido().innerHTML =
+        '<p class="ayuda">Producto terminado e insumos. Reponer mantequilla, si está bajo el mínimo, vuelve a permitir fechas de encargo.</p>' +
+        '<div class="rejilla-2">' +
+          '<section class="panel"><h2>Vitrina</h2><div class="tabla-wrap"><table><thead><tr><th>Producto</th><th>Existencia</th><th>Precio</th></tr></thead><tbody>' + productos + "</tbody></table></div></section>" +
+          '<section class="panel"><h2>Insumos</h2><div class="tabla-wrap"><table><thead><tr><th>Insumo</th><th>Hay</th><th>Mínimo</th><th>Vence</th><th>Aviso</th></tr></thead><tbody>' + insumos + "</tbody></table></div></section>" +
+        "</div>" +
+        '<div class="rejilla-2" style="margin-top:1rem">' +
+          '<form class="panel" id="reponer"><h2>Registrar compra</h2><label>Insumo<select name="insumo">' + opciones + '</select></label><label>Cantidad que entró<input type="number" name="cantidad" min="0.1" step="0.1" value="2" required></label><button type="submit">Sumar al inventario</button></form>' +
+          '<form class="panel" id="merma"><h2>Registrar merma</h2><label>Insumo<select name="insumo">' + opciones + '</select></label><label>Cantidad perdida<input type="number" name="cantidad" min="0.1" step="0.1" value="0.5" required></label><label>Motivo<input name="motivo" required maxlength="140" value="Se pasó la fecha de uso"></label><button type="submit" class="peligro">Anotar merma</button></form>' +
+        "</div>" +
+        '<section class="panel" style="margin-top:1rem"><h2>Mermas anotadas</h2>' + (mermas ? "<ul class='lista'>" + mermas + "</ul>" : "<p>Todavía no hay mermas registradas.</p>") + "</section>";
+      document.getElementById("reponer").addEventListener("submit", function (evento) {
+        evento.preventDefault();
+        const forma = new FormData(evento.target);
+        const resultado = Datos.reponerInsumo(forma.get("insumo"), forma.get("cantidad"));
+        if (!resultado.ok) {
+          UI.mensaje(resultado.error, "error");
+          return;
+        }
+        const texto = "Compra registrada. " + resultado.insumo.nombre + " queda en " + resultado.insumo.cantidad + ".";
+        pintar();
+        UI.mensaje(texto, "ok");
+      });
+      document.getElementById("merma").addEventListener("submit", function (evento) {
+        evento.preventDefault();
+        const forma = new FormData(evento.target);
+        const resultado = Datos.registrarMerma(forma.get("insumo"), forma.get("cantidad"), forma.get("motivo"));
+        if (!resultado.ok) {
+          UI.mensaje(resultado.error, "error");
+          return;
+        }
+        pintar();
+        UI.mensaje("Merma anotada.", "ok");
+      });
+    }
+  </script>
+</body>
+</html>

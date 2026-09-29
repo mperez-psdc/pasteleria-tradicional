@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pedido · Pastelería Tradicional</title>
+  <link rel="stylesheet" href="../css/estilos.css">
+</head>
+<body>
+  <div id="marco"></div>
+  <script src="../js/datos.js"></script>
+  <script src="../js/comun.js"></script>
+  <script>
+    const UI = PasteleriaUI;
+    const Datos = Pasteleria;
+    if (UI.iniciar({ rol: "cliente", titulo: "Pedido", fase: "Fase 3" })) pintar();
+
+    function pintar() {
+      const datos = Datos.cargar();
+      const bajos = Datos.insumosBajos(datos);
+      const bloqueo = bajos.length
+        ? '<p class="aviso warn">Hoy no se prometen encargos a medida. Falta insumo o hay uno vencido: ' + UI.esc(bajos.map(function (i) { return i.nombre; }).join(", ")) + '. Gerencia puede registrar la compra en inventario.</p>'
+        : "";
+      const lineas = datos.productos.filter(function (producto) { return producto.tipo === "estandar"; }).map(function (producto) {
+        const estado = Datos.disponibilidad(producto);
+        const disabled = estado === "agotado" ? " disabled" : "";
+        return '<label>' + UI.esc(producto.nombre) + ' · ' + UI.esc(Datos.dinero(producto.precio)) +
+          '<input type="number" min="0" step="1" value="0" data-producto="' + UI.esc(producto.id) + '"' + disabled + '></label>';
+      }).join("");
+      const minimo = Datos.dinero(50 * Datos.ANTICIPO);
+      UI.contenido().innerHTML =
+        '<div class="panel">' + UI.htmlClienteActivo(datos) + '</div>' +
+        '<div class="rejilla-2" style="margin-top:1rem">' +
+          '<form class="panel" id="estandar">' +
+            '<h2>De la vitrina</h2>' +
+            '<p class="ayuda">Se descuenta al confirmar. El pago queda para el retiro en el local. No hay domicilio.</p>' +
+            lineas +
+            '<label>Fecha de retiro<input type="date" name="fecha" required value="' + UI.esc(Datos.sumarDias(Datos.hoy(), 1)) + '"></label>' +
+            '<label>Nota<input name="notas" maxlength="140" placeholder="Sin cobertura extra, por ejemplo"></label>' +
+            '<button type="submit">Confirmar pedido de vitrina</button>' +
+          '</form>' +
+          '<form class="panel" id="medida">' +
+            '<h2>A medida</h2>' +
+            bloqueo +
+            '<p class="ayuda">Precio base ' + UI.esc(Datos.dinero(50)) + '. Anticipo mínimo ' + UI.esc(minimo) + '. Retiro en el local.</p>' +
+            '<label>Fecha de retiro<input type="date" name="fecha" required value="' + UI.esc(Datos.sumarDias(Datos.hoy(), 3)) + '"></label>' +
+            '<label>Anticipo<input type="number" name="anticipo" min="25" step="0.01" value="25" required></label>' +
+            '<label>Cómo deja el anticipo<select name="metodo"><option value="efectivo">Efectivo al pasar por el local</option><option value="tarjeta">Tarjeta, simulado</option></select></label>' +
+            '<label>Cómo lo quiere<textarea name="notas" maxlength="180" required>Chocolate, sin nueces.</textarea></label>' +
+            '<button type="submit"' + (bajos.length ? " disabled" : "") + '>Confirmar encargo</button>' +
+          '</form>' +
+        '</div>';
+      document.getElementById("cliente-activo").addEventListener("change", function (evento) {
+        UI.fijarClienteActivo(evento.target.value);
+      });
+      document.getElementById("estandar").addEventListener("submit", function (evento) {
+        evento.preventDefault();
+        const items = [];
+        evento.target.querySelectorAll("[data-producto]").forEach(function (campo) {
+          const cantidad = Number(campo.value);
+          if (cantidad > 0) items.push({ productoId: campo.getAttribute("data-producto"), cantidad: cantidad });
+        });
+        const forma = new FormData(evento.target);
+        const resultado = Datos.crearPedido({
+          canal: "web",
+          tipo: "estandar",
+          clienteId: UI.clienteActivo(),
+          items: items,
+          fechaEntrega: forma.get("fecha"),
+          notas: forma.get("notas"),
+        });
+        if (!resultado.ok) {
+        UI.mensaje(resultado.error, "error");
+        return;
+      }
+      pintar();
+      UI.mensaje("Pedido " + resultado.pedido.numero + " recibido. Comprobante interno, no es factura fiscal. Se cobra al retirar.", "ok");
+    });
+      document.getElementById("medida").addEventListener("submit", function (evento) {
+        evento.preventDefault();
+        const forma = new FormData(evento.target);
+        const resultado = Datos.crearPedido({
+          canal: "web",
+          tipo: "medida",
+          clienteId: UI.clienteActivo(),
+          fechaEntrega: forma.get("fecha"),
+          anticipo: forma.get("anticipo"),
+          metodoPago: forma.get("metodo"),
+          notas: forma.get("notas"),
+        });
+        if (!resultado.ok) {
+        UI.mensaje(resultado.error, "error");
+        return;
+      }
+      pintar();
+      UI.mensaje("Encargo " + resultado.pedido.numero + " con anticipo registrado. Comprobante interno. La cocina todavía tiene que aceptarlo.", "ok");
+    });
+    }
+  </script>
+</body>
+</html>

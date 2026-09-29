@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Perfil · Pastelería Tradicional</title>
+  <link rel="stylesheet" href="../css/estilos.css">
+</head>
+<body>
+  <div id="marco"></div>
+  <script src="../js/datos.js"></script>
+  <script src="../js/comun.js"></script>
+  <script>
+    const UI = PasteleriaUI;
+    const Datos = Pasteleria;
+    if (UI.iniciar({ rol: "cliente", titulo: "Perfil", fase: "Fase 3" })) pintar();
+
+    function pintar() {
+      const datos = Datos.cargar();
+      const id = UI.clienteActivo() || (datos.clientes[0] && datos.clientes[0].id);
+      const cliente = datos.clientes.find(function (item) { return item.id === id; }) || datos.clientes[0];
+      if (cliente) UI.fijarClienteActivo(cliente.id);
+      const historial = datos.pedidos.filter(function (pedido) { return pedido.clienteId === cliente.id; });
+      const filas = historial.map(function (pedido) {
+        return "<tr><td>" + UI.esc(pedido.numero) + "</td><td>" + UI.esc(UI.estadoTexto(pedido.estado)) + "</td><td>" + UI.esc(Datos.fechaCorta(pedido.fechaEntrega)) + "</td><td>" + UI.esc(Datos.dinero(pedido.total)) + "</td></tr>";
+      }).join("") || '<tr><td colspan="4">Todavía no hay pedidos a su nombre.</td></tr>';
+      UI.contenido().innerHTML =
+        '<div class="panel">' + UI.htmlClienteActivo(datos) +
+          '<h2>' + UI.esc(cliente.nombre) + '</h2>' +
+          '<p>Teléfono ' + UI.esc(cliente.telefono || "—") + (cliente.correo ? " · " + UI.esc(cliente.correo) : "") + '</p>' +
+          '<p>Puntos por compras ya entregadas: <strong>' + Datos.puntosDe(datos, cliente.id) + '</strong>. Un punto por cada 10 dólares entregados. No hay ranking de clientes.</p>' +
+          '<label class="checks"><input type="checkbox" id="permiso"' + (cliente.consentimiento ? " checked" : "") + '> Acepto mensajes de ofertas. Puedo quitarlo cuando quiera, y sigo pudiendo comprar.</label>' +
+        '</div>' +
+        '<div class="panel" style="margin-top:1rem"><h2>Historial</h2><div class="tabla-wrap"><table><thead><tr><th>Comprobante</th><th>Estado</th><th>Retiro</th><th>Total</th></tr></thead><tbody>' + filas + '</tbody></table></div></div>';
+      document.getElementById("cliente-activo").addEventListener("change", function (evento) {
+        UI.fijarClienteActivo(evento.target.value);
+        pintar();
+      });
+      document.getElementById("permiso").addEventListener("change", function (evento) {
+        const resultado = Datos.fijarConsentimiento(UI.clienteActivo(), evento.target.checked);
+        UI.mensaje(resultado.ok ? "Quedó guardado el permiso de marketing." : resultado.error, resultado.ok ? "ok" : "error");
+      });
+    }
+  </script>
+</body>
+</html>

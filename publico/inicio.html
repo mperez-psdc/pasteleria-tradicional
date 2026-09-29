@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vitrina · Pastelería Tradicional</title>
+  <link rel="stylesheet" href="../css/estilos.css">
+</head>
+<body>
+  <div id="marco"></div>
+  <script src="../js/datos.js"></script>
+  <script src="../js/comun.js"></script>
+  <script>
+    const UI = PasteleriaUI;
+    const Datos = Pasteleria;
+    if (UI.iniciar({ titulo: "Vitrina del local", fase: "Fase 2" })) {
+      pintar();
+    }
+
+    function pintar() {
+      const datos = Datos.cargar();
+      const cartas = datos.productos.filter(function (producto) { return producto.tipo === "estandar"; }).map(function (producto) {
+        const estado = Datos.disponibilidad(producto);
+        const texto = estado === "agotado" ? "Agotado" : (estado === "pocas" ? "Quedan pocas" : "Disponible");
+        return '<article class="tarjeta"><h3>' + UI.esc(producto.nombre) + '</h3><p>' + UI.esc(producto.descripcion) + '</p><p class="precio">' + UI.esc(Datos.dinero(producto.precio)) + '</p><p><span class="pill-estado">' + texto + '</span></p></article>';
+      }).join("");
+      UI.contenido().innerHTML =
+        '<div class="rejilla-2">' +
+          '<section><p>Pastelería de barrio, 30 años en el mismo local. El pedido se retira aquí. No hay domicilio.</p><div class="tarjetas">' + cartas + '</div></section>' +
+          '<section class="panel"><h2>Dejar sus datos</h2><p class="ayuda">Con esto se arma el perfil. Comprar no obliga a recibir publicidad.</p>' +
+            '<form id="alta">' +
+              '<label>Nombre<input name="nombre" required maxlength="80" autocomplete="name"></label>' +
+              '<label>Teléfono<input name="telefono" required maxlength="20" autocomplete="tel"></label>' +
+              '<label>Correo, si quiere<input name="correo" type="email" maxlength="80" autocomplete="email"></label>' +
+              '<label class="checks"><input type="checkbox" name="permiso"> Acepto recibir ofertas y recordatorios. Si no marco la casilla, igual puedo encargar.</label>' +
+              '<button type="submit">Guardar mis datos</button>' +
+            '</form>' +
+            '<p class="ayuda">Para encargar, entre luego con el rol Cliente. El mostrador también vende sin este formulario.</p>' +
+          '</section>' +
+        '</div>';
+      document.getElementById("alta").addEventListener("submit", function (evento) {
+        evento.preventDefault();
+        const forma = new FormData(evento.target);
+        const resultado = Datos.crearCliente({
+          nombre: forma.get("nombre"),
+          telefono: forma.get("telefono"),
+          correo: forma.get("correo"),
+          consentimiento: forma.get("permiso") === "on",
+        });
+        if (!resultado.ok) {
+          UI.mensaje(resultado.error, "error");
+          return;
+        }
+        UI.fijarClienteActivo(resultado.cliente.id);
+        const texto = resultado.actualizado
+          ? "Ese teléfono ya estaba. Se actualizó el permiso de " + resultado.cliente.nombre + "."
+          : "Listo, " + resultado.cliente.nombre + ". En la entrada, elija Cliente para encargar.";
+        UI.mensaje(texto, "ok");
+        evento.target.reset();
+      });
+    }
+  </script>
+</body>
+</html>

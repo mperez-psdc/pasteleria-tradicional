@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pedidos y caja · Pastelería Tradicional</title>
+  <link rel="stylesheet" href="../css/estilos.css">
+</head>
+<body>
+  <div id="marco"></div>
+  <script src="../js/datos.js"></script>
+  <script src="../js/comun.js"></script>
+  <script>
+    const UI = PasteleriaUI;
+    const Datos = Pasteleria;
+    if (UI.iniciar({ rol: "mostrador", titulo: "Pedidos y caja", fase: "Fase 1" })) {
+      const caja = UI.contenido();
+      caja.addEventListener("submit", function (evento) {
+        if (evento.target.id === "venta") venderEstandar(evento);
+        if (evento.target.id === "medida") venderMedida(evento);
+        if (evento.target.id === "caja") cerrar(evento);
+      });
+      caja.addEventListener("click", enClick);
+      pintar();
+    }
+
+    function opcionesPasteleros(datos) {
+      return datos.pasteleros.map(function (persona) {
+        const cupo = Datos.tareasAbiertas(datos, persona.id).length;
+        const lleno = cupo >= Datos.MAX_TAREAS ? " — sin cupo" : " — " + cupo + " tareas";
+        return '<option value="' + UI.esc(persona.id) + '">' + UI.esc(persona.nombre + lleno) + "</option>";
+      }).join("");
+    }
+
+    function pintar() {
+      const datos = Datos.cargar();
+      const bajos = Datos.insumosBajos(datos);
+      const productos = datos.productos.filter(function (producto) { return producto.tipo === "estandar"; }).map(function (producto) {
+        const bloqueado = producto.stock <= 0 ? " disabled" : "";
+        return '<label>' + UI.esc(producto.nombre) + " · " + UI.esc(Datos.dinero(producto.precio)) + " · hay " + producto.stock +
+          '<input type="number" min="0" step="1" value="0" data-producto="' + UI.esc(producto.id) + '"' + bloqueado + "></label>";
+      }).join("");
+      const filas = datos.pedidos.slice().reverse().map(function (pedido) {
+        const acciones = accionesDe(pedido, datos);
+        return "<tr><td><strong>" + UI.esc(pedido.numero) + "</strong><br><span class='ayuda'>" + UI.esc(pedido.clienteNombre) + " · " + UI.esc(pedido.canal) + "</span></td>" +
+          "<td>" + UI.esc(pedido.items.map(function (item) { return item.cantidad + " " + item.nombre; }).join(", ")) + (pedido.notas ? "<br><span class='ayuda'>" + UI.esc(pedido.notas) + "</span>" : "") + "</td>" +
+          "<td><span class='pill-estado " + UI.esc(pedido.estado) + "'>" + UI.esc(UI.estadoTexto(pedido.estado)) + "</span><br><span class='ayuda'>" + UI.esc(Datos.fechaCorta(pedido.fechaEntrega)) + "</span></td>" +
+          "<td>" + UI.esc(Datos.dinero(pedido.total)) + "<br><span class='ayuda'>Saldo " + UI.esc(Datos.dinero(Datos.saldo(pedido))) + "</span></td>" +
+          "<td>" + acciones + "</td></tr>";
+      }).join("");
+      const ultimo = datos.cuadres[datos.cuadres.length - 1];
+      UI.contenido().innerHTML =
+        '<p class="ayuda">Se puede vender sin cuenta y sin celular. El comprobante es interno: no es factura de la DGI. La tarjeta no guarda números.</p>' +
+        (bajos.length ? '<p class="aviso warn">No se debe prometer un pastel a medida hasta reponer: ' + UI.esc(bajos.map(function (i) { return i.nombre; }).join(", ")) + ".</p>" : "") +
+        '<div class="rejilla-2">' +
+          '<form class="panel" id="venta">' +
+            '<h2>Venta de mostrador</h2>' +
+            '<label>Nombre, si lo da<input name="nombre" placeholder="Cliente de mostrador" maxlength="80"></label>' +
+            productos +
+            '<label>Modo<select name="modo"><option value="ahora">Llevar ahora</option><option value="fecha">Encargar para una fecha</option></select></label>' +
+            '<label>Fecha de retiro<input type="date" name="fecha" value="' + UI.esc(Datos.sumarDias(Datos.hoy(), 1)) + '"></label>' +
+            '<label>Abono ahora, si no se lleva<input type="number" name="anticipo" min="0" step="0.01" value="0"></label>' +
+            '<label>Medio<select name="metodo"><option value="efectivo">Efectivo</option><option value="tarjeta">Tarjeta simulada</option></select></label>' +
+            '<button type="submit">Registrar venta</button>' +
+          "</form>" +
+          '<form class="panel" id="medida">' +
+            '<h2>Encargo a medida</h2>' +
+            '<label>Nombre<input name="nombre" maxlength="80" placeholder="Si no hay ficha"></label>' +
+            '<label>Cliente registrado, opcional<select name="cliente"><option value="">Sin ficha</option>' +
+              datos.clientes.map(function (cliente) { return '<option value="' + UI.esc(cliente.id) + '">' + UI.esc(cliente.nombre) + "</option>"; }).join("") +
+            "</select></label>" +
+            '<label>Fecha<input type="date" name="fecha" required value="' + UI.esc(Datos.sumarDias(Datos.hoy(), 3)) + '"></label>' +
+            '<label>Anticipo mínimo 25<input type="number" name="anticipo" min="25" step="0.01" value="25" required></label>' +
+            '<label>Medio<select name="metodo"><option value="efectivo">Efectivo</option><option value="tarjeta">Tarjeta simulada</option></select></label>' +
+            '<label>Detalle<textarea name="notas" required maxlength="180">Vainilla y frutos rojos.</textarea></label>' +
+            '<button type="submit"' + (bajos.length ? " disabled" : "") + ">Registrar encargo</button>" +
+          "</form>" +
+        "</div>" +
+        '<section class="panel" style="margin-top:1rem"><h2>Cola</h2><div class="tabla-wrap"><table><thead><tr><th>Pedido</th><th>Detalle</th><th>Estado</th><th>Cobro</th><th>Acción</th></tr></thead><tbody>' + filas + "</tbody></table></div></section>" +
+        '<form class="panel" id="caja" style="margin-top:1rem"><h2>Cierre del día</h2><p class="ayuda">Compara el efectivo contado con los cobros en efectivo registrados hoy. La diferencia se anota, no se borra.</p>' +
+          (ultimo ? "<p>Último cierre " + UI.esc(Datos.fechaCorta(ultimo.fecha)) + ": diferencia " + UI.esc(Datos.dinero(ultimo.diferencia)) + ".</p>" : "") +
+          '<label>Efectivo contado<input type="number" name="contado" min="0" step="0.01" required></label>' +
+          '<label>Nota<input name="nota" maxlength="140"></label>' +
+          '<button type="submit">Guardar cuadre</button></form>' +
+        '<div id="recibo"></div>';
+    }
+
+    function accionesDe(pedido, datos) {
+      if (pedido.estado === "anulado" || pedido.estado === "entregado") {
+        const queja = pedido.queja ? "<br><span class='ayuda'>Queja: " + UI.esc(pedido.queja.texto) + "</span>" : "";
+        const cal = pedido.calificacion ? "<br><span class='ayuda'>Nota " + pedido.calificacion.puntaje + "/5</span>" : "";
+        return UI.esc(pedido.notaStock || pedido.motivoAnulacion || "Cerrado") + queja + cal;
+      }
+      let html = "";
+      if (pedido.estado === "recibido") {
+        html += '<label class="ayuda">Pastelero<select data-pastelero="' + UI.esc(pedido.id) + '">' + opcionesPasteleros(datos) + "</select></label>";
+        html += '<button type="button" data-accion="cocina" data-id="' + UI.esc(pedido.id) + '">Enviar a cocina</button> ';
+      }
+      if (pedido.estado === "listo" || (pedido.estado === "recibido" && pedido.tipo === "estandar")) {
+        html += '<button type="button" data-accion="entregar" data-id="' + UI.esc(pedido.id) + '">Entregar</button> ';
+      }
+      html += '<label class="ayuda">Motivo para anular<input data-motivo="' + UI.esc(pedido.id) + '" maxlength="140"></label>';
+      html += '<button type="button" class="peligro" data-accion="anular" data-id="' + UI.esc(pedido.id) + '">Anular</button>';
+      html += '<label class="ayuda">Queja<input data-queja-texto="' + UI.esc(pedido.id) + '" maxlength="180"></label>';
+      html += '<button type="button" class="secundario" data-accion="queja" data-id="' + UI.esc(pedido.id) + '">Anotar queja</button>';
+      return html;
+    }
+
+    function venderEstandar(evento) {
+      evento.preventDefault();
+      const forma = new FormData(evento.target);
+      const items = [];
+      evento.target.querySelectorAll("[data-producto]").forEach(function (campo) {
+        const cantidad = Number(campo.value);
+        if (cantidad > 0) items.push({ productoId: campo.getAttribute("data-producto"), cantidad: cantidad });
+      });
+      const ahora = forma.get("modo") === "ahora";
+      const resultado = Datos.crearPedido({
+        canal: "mostrador",
+        tipo: "estandar",
+        clienteNombre: forma.get("nombre"),
+        items: items,
+        entregaInmediata: ahora,
+        fechaEntrega: forma.get("fecha"),
+        anticipo: ahora ? 0 : forma.get("anticipo"),
+        metodoPago: forma.get("metodo"),
+        notas: "",
+      });
+      if (!resultado.ok) {
+        UI.mensaje(resultado.error, "error");
+        return;
+      }
+      const pedido = resultado.pedido;
+      pintar();
+      mostrarRecibo(pedido);
+      UI.mensaje("Venta " + pedido.numero + " registrada. Comprobante interno: no es factura fiscal.", "ok");
+    }
+
+    function venderMedida(evento) {
+      evento.preventDefault();
+      const forma = new FormData(evento.target);
+      const resultado = Datos.crearPedido({
+        canal: "mostrador",
+        tipo: "medida",
+        clienteId: forma.get("cliente"),
+        clienteNombre: forma.get("nombre"),
+        fechaEntrega: forma.get("fecha"),
+        anticipo: forma.get("anticipo"),
+        metodoPago: forma.get("metodo"),
+        notas: forma.get("notas"),
+      });
+      if (!resultado.ok) {
+        UI.mensaje(resultado.error, "error");
+        return;
+      }
+      const pedido = resultado.pedido;
+      pintar();
+      mostrarRecibo(pedido);
+      UI.mensaje("Encargo " + pedido.numero + " con anticipo. Comprobante interno: no es factura fiscal.", "ok");
+    }
+
+    function mostrarRecibo(pedido) {
+      const nodo = document.getElementById("recibo");
+      if (!nodo) return;
+      nodo.innerHTML = '<aside class="comprobante"><h2>' + UI.esc(pedido.numero) + '</h2><p>Comprobante interno. No es factura fiscal de la DGI.</p><p>' + UI.esc(pedido.clienteNombre) + " · " + UI.esc(Datos.dinero(pedido.total)) + " · saldo " + UI.esc(Datos.dinero(Datos.saldo(pedido))) + "</p><p>" + UI.esc(pedido.items.map(function (item) { return item.cantidad + " " + item.nombre; }).join(", ")) + "</p></aside>";
+    }
+
+    function enClick(evento) {
+      const boton = evento.target.closest("[data-accion]");
+      if (!boton) return;
+      const id = boton.getAttribute("data-id");
+      const accion = boton.getAttribute("data-accion");
+      let resultado = null;
+      let texto = "";
+      if (accion === "cocina") {
+        const select = UI.contenido().querySelector('[data-pastelero="' + id + '"]');
+        resultado = Datos.enviarACocina(id, select.value);
+        texto = "El pedido pasó a cocina.";
+      }
+      if (accion === "entregar") {
+        resultado = Datos.entregarPedido(id, "efectivo");
+        texto = "Entregado. Si había saldo, se cobró en efectivo y quedó en el comprobante interno.";
+      }
+      if (accion === "anular") {
+        const motivo = UI.contenido().querySelector('[data-motivo="' + id + '"]');
+        resultado = Datos.anularPedido(id, motivo ? motivo.value : "");
+        texto = resultado.ok ? (resultado.pedido.notaStock || "Pedido anulado.") : "";
+      }
+      if (accion === "queja") {
+        const campo = UI.contenido().querySelector('[data-queja-texto="' + id + '"]');
+        resultado = Datos.registrarQueja(id, campo ? campo.value : "", "mostrador");
+        texto = "Queja anotada.";
+      }
+      if (!resultado) return;
+      if (!resultado.ok) {
+        UI.mensaje(resultado.error, "error");
+        return;
+      }
+      const pedido = resultado.pedido;
+      pintar();
+      if (accion === "entregar" && pedido) mostrarRecibo(pedido);
+      UI.mensaje(texto, "ok");
+    }
+
+    function cerrar(evento) {
+      evento.preventDefault();
+      const forma = new FormData(evento.target);
+      const resultado = Datos.cerrarCaja(forma.get("contado"), forma.get("nota"));
+      if (!resultado.ok) {
+        UI.mensaje(resultado.error, "error");
+        return;
+      }
+      const diferencia = resultado.cuadre.diferencia;
+      pintar();
+      UI.mensaje("Cuadre guardado. Diferencia: " + Datos.dinero(diferencia) + ".", diferencia === 0 ? "ok" : "error");
+    }
+  </script>
+</body>
+</html>

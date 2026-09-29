@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Calificación · Pastelería Tradicional</title>
+  <link rel="stylesheet" href="../css/estilos.css">
+</head>
+<body>
+  <div id="marco"></div>
+  <script src="../js/datos.js"></script>
+  <script src="../js/comun.js"></script>
+  <script>
+    const UI = PasteleriaUI;
+    const Datos = Pasteleria;
+    if (UI.iniciar({ rol: "cliente", titulo: "Calificación", fase: "Fase 3" })) pintar();
+
+    function pintar() {
+      const datos = Datos.cargar();
+      const id = UI.clienteActivo() || (datos.clientes[0] && datos.clientes[0].id);
+      if (id) UI.fijarClienteActivo(id);
+      const mios = datos.pedidos.filter(function (pedido) { return pedido.clienteId === id; });
+      const abiertos = mios.filter(function (pedido) { return pedido.estado === "entregado" && !pedido.calificacion; });
+      const cerrados = mios.filter(function (pedido) { return pedido.calificacion; });
+      const otros = mios.filter(function (pedido) { return pedido.estado !== "entregado" && pedido.estado !== "anulado"; });
+      UI.contenido().innerHTML =
+        '<div class="panel">' + UI.htmlClienteActivo(datos) +
+          '<p class="ayuda">Solo se opina de un pedido que ya se entregó. Una queja no dispara un cupón automático.</p>' +
+        '</div>' +
+        '<div id="lista"></div>';
+      const lista = document.getElementById("lista");
+      if (!abiertos.length) {
+        lista.insertAdjacentHTML("beforeend", '<p class="aviso">No hay entregas pendientes de calificar con este perfil.</p>');
+      }
+      abiertos.forEach(function (pedido) {
+        lista.insertAdjacentHTML("beforeend",
+          '<form class="panel" data-pedido="' + UI.esc(pedido.id) + '" style="margin-top:1rem">' +
+            '<h2>' + UI.esc(pedido.numero) + '</h2>' +
+            '<p>' + UI.esc(pedido.items.map(function (item) { return item.nombre; }).join(", ")) + '</p>' +
+            '<label>Nota del 1 al 5<input type="number" name="puntaje" min="1" max="5" step="1" value="5" required></label>' +
+            '<label>Comentario<textarea name="comentario" maxlength="180"></textarea></label>' +
+            '<div class="fila"><button type="submit">Enviar calificación</button></div>' +
+            '<label>Queja, si hace falta<textarea name="queja" maxlength="180"></textarea></label>' +
+            '<button type="button" class="secundario" data-queja="' + UI.esc(pedido.id) + '">Registrar queja</button>' +
+          '</form>');
+      });
+      otros.forEach(function (pedido) {
+        lista.insertAdjacentHTML("beforeend", '<p class="ayuda">' + UI.esc(pedido.numero) + ' está ' + UI.esc(UI.estadoTexto(pedido.estado).toLowerCase()) + '. Todavía no se puede calificar.</p>');
+      });
+      if (cerrados.length) {
+        const filas = cerrados.map(function (pedido) {
+          return "<tr><td>" + UI.esc(pedido.numero) + "</td><td>" + pedido.calificacion.puntaje + "/5</td><td>" + UI.esc(pedido.calificacion.comentario || "—") + "</td></tr>";
+        }).join("");
+        lista.insertAdjacentHTML("beforeend", '<div class="panel" style="margin-top:1rem"><h2>Ya calificados</h2><div class="tabla-wrap"><table><thead><tr><th>Pedido</th><th>Nota</th><th>Comentario</th></tr></thead><tbody>' + filas + "</tbody></table></div></div>");
+      }
+      document.getElementById("cliente-activo").addEventListener("change", function (evento) {
+        UI.fijarClienteActivo(evento.target.value);
+        pintar();
+      });
+      lista.addEventListener("submit", function (evento) {
+        const forma = evento.target.closest("form");
+        if (!forma) return;
+        evento.preventDefault();
+        const datosForma = new FormData(forma);
+        const resultado = Datos.calificar(forma.getAttribute("data-pedido"), UI.clienteActivo(), Number(datosForma.get("puntaje")), datosForma.get("comentario"));
+        if (!resultado.ok) UI.mensaje(resultado.error, "error");
+        else {
+          pintar();
+          UI.mensaje("Gracias. La nota quedó en el pedido " + resultado.pedido.numero + ".", "ok");
+        }
+      });
+      lista.addEventListener("click", function (evento) {
+        const boton = evento.target.closest("[data-queja]");
+        if (!boton) return;
+        const forma = boton.closest("form");
+        const texto = new FormData(forma).get("queja");
+        const resultado = Datos.registrarQueja(boton.getAttribute("data-queja"), texto, "cliente");
+        UI.mensaje(resultado.ok ? "La queja quedó registrada. No se envió un descuento automático." : resultado.error, resultado.ok ? "ok" : "error");
+      });
+    }
+  </script>
+</body>
+</html>
