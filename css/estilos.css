@@ -1,20 +1,20 @@
 :root {
-  --bg: #f3efe8;
-  --paper: #fffcf8;
-  --ink: #2a2420;
-  --muted: #6d625b;
-  --line: #e3d8cc;
-  --cocoa: #6f3d32;
-  --cocoa-dark: #4a2822;
-  --gold: #a68456;
-  --ok: #1f6b45;
-  --ok-bg: #e7f4ec;
-  --warn: #8a5a12;
-  --warn-bg: #fbf1df;
-  --bad: #8d2f39;
-  --bad-bg: #f8e8ea;
-  --info-bg: #e7f0f6;
-  --shadow: 0 10px 30px rgba(74, 40, 34, 0.06);
+  --bg: #fbf6f1;
+  --paper: #fffdfb;
+  --ink: #3a2a32;
+  --muted: #8a7380;
+  --line: #f0ddd8;
+  --cocoa: #c45c78;
+  --cocoa-dark: #6d3a55;
+  --gold: #e7a15a;
+  --ok: #2f9e6b;
+  --ok-bg: #e7f7ef;
+  --warn: #b86a12;
+  --warn-bg: #fff3df;
+  --bad: #c4475a;
+  --bad-bg: #fdecef;
+  --info-bg: #efe7fb;
+  --shadow: 0 12px 28px rgba(109, 58, 85, 0.12);
   color-scheme: light;
 }
 
@@ -25,7 +25,8 @@ body {
   font-family: "Segoe UI", Candara, sans-serif;
   color: var(--ink);
   background:
-    radial-gradient(circle at top left, #f8f1e6, transparent 32%),
+    radial-gradient(circle at top left, #ffe8d6, transparent 28%),
+    radial-gradient(circle at top right, #f3d7ef, transparent 26%),
     var(--bg);
   line-height: 1.5;
 }
@@ -73,6 +74,7 @@ h3 { margin: 0 0 0.4rem; font-size: 1.05rem; }
 
 .sesion { display: flex; gap: 0.8rem; align-items: center; font-size: 0.92rem; }
 .enlace-suave { color: #f3e2d4; }
+.cabecera button.secundario { color: #fff; border-color: rgba(255,255,255,0.45); background: transparent; }
 
 .pagina { width: min(1100px, calc(100% - 2rem)); margin: 1.2rem auto 2rem; }
 .titulo-pagina { display: flex; flex-wrap: wrap; gap: 0.7rem; align-items: center; margin-bottom: 1rem; }
@@ -190,8 +192,8 @@ th { font-size: 0.78rem; letter-spacing: 0.04em; text-transform: uppercase; colo
 .lado {
   width: 250px;
   flex: none;
-  background: var(--cocoa-dark);
-  color: #f8f1ea;
+  background: linear-gradient(180deg, #6d3a55 0%, #3f6f9a 100%);
+  color: #fff7fb;
   padding: 1rem 0.8rem 2rem;
 }
 .marca-lado, .marca-login {
@@ -214,7 +216,7 @@ th { font-size: 0.78rem; letter-spacing: 0.04em; text-transform: uppercase; colo
 .menu-lado a[aria-current="page"] { background: #fff; color: var(--cocoa-dark); }
 .grupo-nav {
   margin: 0.85rem 0.4rem 0.2rem;
-  color: #e4d3c4;
+  color: #ffd9ea;
   font-size: 0.72rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -222,7 +224,44 @@ th { font-size: 0.78rem; letter-spacing: 0.04em; text-transform: uppercase; colo
 .cuerpo { flex: 1; min-width: 0; }
 .cuerpo .cabecera { border-bottom: 1px solid rgba(255,255,255,0.08); }
 .cuerpo .pagina, .cuerpo .aviso, .cuerpo .banner-red, .cuerpo .pie { width: min(1100px, calc(100% - 2rem)); }
-.login { min-height: 100vh; display: grid; place-items: center; padding: 1.5rem; }
+.apps {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 1.4rem 1rem;
+  max-width: 920px;
+  margin: 1.5rem auto 0;
+}
+.app-icono {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+  text-decoration: none;
+  color: var(--ink);
+  font-size: 0.92rem;
+}
+.app-icono span {
+  width: 78px;
+  height: 78px;
+  border-radius: 22px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-family: Georgia, serif;
+  font-size: 1.8rem;
+  box-shadow: 0 10px 18px rgba(109, 58, 85, 0.18);
+}
+.app-inicio {
+  background:
+    radial-gradient(circle at 12% 8%, #ffe4c8, transparent 24%),
+    radial-gradient(circle at 88% 0%, #f6d4ee, transparent 28%),
+    #fbf7fb;
+}
+.app-inicio .cabecera { background: #fff; color: var(--ink); border-bottom: 1px solid var(--line); }
+.app-inicio .cabecera a, .app-inicio .sesion span, .app-inicio .marca small { color: var(--ink); }
+.app-inicio .marca small { color: var(--muted); }
+.app-inicio .cabecera button.secundario { color: var(--cocoa-dark); border-color: #e7c9d4; }
+.app-inicio .pagina { width: min(980px, calc(100% - 2rem)); }
 .barras { display: flex; align-items: flex-end; gap: 0.35rem; min-height: 160px; }
 .barra-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.25rem; min-width: 0; }
 .barra {
@@ -231,7 +270,7 @@ th { font-size: 0.78rem; letter-spacing: 0.04em; text-transform: uppercase; colo
   border-radius: 6px 6px 0 0;
   min-height: 2px;
 }
-.barra.alt { background: #c4a574; }
+.barra.alt { background: #f2b56b; }
 .barra-col span { font-size: 0.72rem; color: var(--muted); }
 .dona { width: 140px; height: 140px; }
 .sugerencia { border-left: 3px solid var(--gold); padding-left: 0.7rem; margin: 0.8rem 0; }

@@ -1,67 +1,16 @@
 /* Marco común: sesión, menú por módulo y avisos. */
 (function () {
   const MODULOS = [
-    {
-      titulo: "Ventas",
-      roles: ["admin", "cajero"],
-      items: [["Pedidos y caja", "mostrador/pedidos.html", "Fase 1"]],
-    },
-    {
-      titulo: "Dirección",
-      roles: ["admin"],
-      items: [["Operación del día", "gerencia/panel.html", "Fase 1"]],
-    },
-    {
-      titulo: "Producción",
-      roles: ["admin", "pastelero"],
-      items: [["Tablero de cocina", "produccion/tablero.html", "Fase 1"]],
-    },
-    {
-      titulo: "Inventario",
-      roles: ["admin"],
-      items: [["Existencias y kardex", "gerencia/inventario.html", "Fase 1"]],
-    },
-    {
-      titulo: "Compras",
-      roles: ["admin"],
-      items: [
-        ["Proveedores", "compras/proveedores.html", "Fase 1"],
-        ["Órdenes de compra", "compras/ordenes.html", "Fase 1"],
-      ],
-    },
-    {
-      titulo: "Contabilidad",
-      roles: ["admin", "contador"],
-      items: [
-        ["Libro", "contabilidad/libro.html", "Fase 1"],
-        ["Cuentas por pagar", "contabilidad/pagar.html", "Fase 1"],
-        ["Resultados", "contabilidad/resultados.html", "Fase 1"],
-      ],
-    },
-    {
-      titulo: "Clientes",
-      roles: ["admin", "cliente"],
-      items: [
-        ["Catálogo", "cliente/catalogo.html", "Fase 3"],
-        ["Pedido", "cliente/pedido.html", "Fase 3"],
-        ["Perfil", "cliente/perfil.html", "Fase 3"],
-        ["Calificación", "cliente/calificacion.html", "Fase 3"],
-      ],
-    },
-    {
-      titulo: "Personal y difusión",
-      roles: ["admin"],
-      items: [
-        ["Personal", "gerencia/personal.html", "Fase 4"],
-        ["Servicios", "gerencia/servicios.html", "Fase 4"],
-        ["Marketing", "gerencia/marketing.html", "Fase 2 y 4"],
-      ],
-    },
-    {
-      titulo: "Reportes",
-      roles: ["admin", "contador"],
-      items: [["Panel de KPIs", "reportes/panel.html", "Fase 1"]],
-    },
+    { titulo: "Ventas", color: "linear-gradient(145deg,#8d4d7a,#c46b8a)", roles: ["admin", "cajero"], href: "mostrador/pedidos.html", items: [["Pedidos y caja", "mostrador/pedidos.html"]] },
+    { titulo: "Cocina", color: "linear-gradient(145deg,#e07a3d,#f2b56b)", roles: ["admin", "pastelero"], href: "produccion/tablero.html", items: [["Tablero", "produccion/tablero.html"]] },
+    { titulo: "Inventario", color: "linear-gradient(145deg,#1a9b8e,#7dcfb6)", roles: ["admin"], href: "gerencia/inventario.html", items: [["Existencias", "gerencia/inventario.html"]] },
+    { titulo: "Compras", color: "linear-gradient(145deg,#3a6fd8,#7eb6ff)", roles: ["admin"], href: "compras/ordenes.html", items: [["Órdenes", "compras/ordenes.html"], ["Proveedores", "compras/proveedores.html"]] },
+    { titulo: "Contabilidad", color: "linear-gradient(145deg,#e0a106,#f6d365)", roles: ["admin", "contador"], href: "contabilidad/libro.html", items: [["Libro", "contabilidad/libro.html"], ["Por pagar", "contabilidad/pagar.html"], ["Resultados", "contabilidad/resultados.html"]] },
+    { titulo: "Clientes", color: "linear-gradient(145deg,#d4537e,#f3a6c8)", roles: ["admin", "cliente"], href: "cliente/catalogo.html", items: [["Catálogo", "cliente/catalogo.html"], ["Pedido", "cliente/pedido.html"], ["Perfil", "cliente/perfil.html"], ["Calificación", "cliente/calificacion.html"]] },
+    { titulo: "Personal", color: "linear-gradient(145deg,#2f9e6b,#8ed9a8)", roles: ["admin"], href: "gerencia/personal.html", items: [["Cumplimiento", "gerencia/personal.html"]] },
+    { titulo: "Servicios", color: "linear-gradient(145deg,#5b6b8a,#a9b7d0)", roles: ["admin"], href: "gerencia/servicios.html", items: [["Luz, agua y teléfono", "gerencia/servicios.html"]] },
+    { titulo: "Marketing", color: "linear-gradient(145deg,#d64545,#f09a7a)", roles: ["admin"], href: "gerencia/marketing.html", items: [["Campañas", "gerencia/marketing.html"]] },
+    { titulo: "Reportes", color: "linear-gradient(145deg,#ef6a3c,#f7c08a)", roles: ["admin", "contador"], href: "reportes/panel.html", items: [["Indicadores", "reportes/panel.html"], ["Operación del día", "gerencia/panel.html"]] },
   ];
 
   const NOMBRE_ROL = {
@@ -74,13 +23,9 @@
     gerencia: "Administración",
   };
 
-  const DESTINO = {
-    admin: "reportes/panel.html",
-    cajero: "mostrador/pedidos.html",
-    pastelero: "produccion/tablero.html",
-    contador: "contabilidad/libro.html",
-    cliente: "cliente/catalogo.html",
-  };
+  function destinoDe() {
+    return "aplicaciones.html";
+  }
 
   function base() {
     const ruta = decodeURIComponent(location.pathname).replace(/\\/g, "/");
@@ -125,8 +70,8 @@
     return false;
   }
 
-  function destinoDe(rol) {
-    return DESTINO[rol] || "login.html";
+  function modulosDe(rol) {
+    return MODULOS.filter(function (modulo) { return modulo.roles.indexOf(rol) !== -1; });
   }
 
   function avisoTomar() {
@@ -156,8 +101,7 @@
     }).map(function (modulo) {
       const links = modulo.items.map(function (item) {
         const activo = ruta.endsWith(item[1]);
-        const fase = item[2] ? '<span class="fase">' + esc(item[2]) + "</span>" : "";
-        return '<a href="' + esc(raiz + item[1]) + '"' + (activo ? ' aria-current="page"' : "") + ">" + esc(item[0]) + fase + "</a>";
+        return '<a href="' + esc(raiz + item[1]) + '"' + (activo ? ' aria-current="page"' : "") + ">" + esc(item[0]) + "</a>";
       }).join("");
       return '<p class="grupo-nav">' + esc(modulo.titulo) + "</p>" + links;
     }).join("");
@@ -172,23 +116,27 @@
     }
     const raiz = base();
     const rol = rolActual();
-    const chipFase = opciones.fase ? '<span class="fase fase-grande">' + esc(opciones.fase) + "</span>" : "";
+    if (opciones.aplicaciones && !rol) {
+      location.replace(raiz + "login.html");
+      return false;
+    }
     const aviso = avisoTomar();
     const red = navigator.onLine ? "" : '<p class="banner-red" role="status">Sin conexión. En el local se atiende igual y se registra cuando vuelva la red. Esta demostración guarda los datos solo en este navegador.</p>';
     const nombre = sessionStorage.getItem("nombreUsuario") || NOMBRE_ROL[rol] || "Invitado";
+    const lateral = opciones.aplicaciones ? "" :
+      '<aside class="lado"><a class="marca-lado" href="' + esc(raiz) + 'aplicaciones.html">Aplicaciones</a>' +
+      '<nav class="menu-lado" aria-label="Módulos">' + menuHtml(raiz) + "</nav></aside>";
     document.getElementById("marco").innerHTML =
-      '<div class="app">' +
-        '<aside class="lado"><a class="marca-lado" href="' + esc(raiz) + (rol ? destinoDe(rol) : "index.html") + '">Pastelería Tradicional</a>' +
-        '<nav class="menu-lado" aria-label="Módulos">' + menuHtml(raiz) + "</nav></aside>" +
+      '<div class="app' + (opciones.aplicaciones ? " app-inicio" : "") + '">' + lateral +
         '<div class="cuerpo">' +
-          '<header class="cabecera"><div class="marca"><strong>' + esc(opciones.titulo || "Pastelería") + "</strong><small>" + esc(nombre) + "</small></div>" +
+          '<header class="cabecera"><div class="marca"><a href="' + esc(raiz) + 'aplicaciones.html">Pastelería Tradicional</a><small>' + esc(nombre) + "</small></div>" +
           '<div class="sesion"><span>' + esc(NOMBRE_ROL[rol] || "Sin sesión") + "</span>" +
           (rol ? '<button type="button" class="secundario" id="salir">Cerrar sesión</button>' : '<a class="enlace-suave" href="' + esc(raiz) + 'login.html">Entrar</a>') +
           "</div></header>" +
           red +
           '<div id="zona-red"></div>' +
           (aviso ? '<p class="aviso" role="status">' + esc(aviso) + "</p>" : "") +
-          '<main class="pagina"><div class="titulo-pagina"><h1>' + esc(opciones.titulo || "") + "</h1>" + chipFase + "</div><div id='contenido'></div></main>" +
+          '<main class="pagina"><div class="titulo-pagina"><h1>' + esc(opciones.titulo || "") + "</h1></div><div id='contenido'></div></main>" +
           '<footer class="pie">Demostración. Las claves no son reales. No hay pasarela, ni correo real, ni factura de la DGI, ni datos compartidos entre computadoras. El comprobante y la contabilidad son internos.</footer>' +
         "</div></div>";
     const salir = document.getElementById("salir");
@@ -253,7 +201,7 @@
     sessionStorage.setItem("nombreUsuario", usuario.nombre);
     if (usuario.clienteId) fijarClienteActivo(usuario.clienteId);
     if (usuario.pasteleroId) fijarPasteleroActivo(usuario.pasteleroId);
-    location.href = base() + destinoDe(usuario.rol);
+    location.href = base() + "aplicaciones.html";
   }
 
   function htmlClienteActivo(datos) {
@@ -287,6 +235,7 @@
     entrar: entrar,
     entrarUsuario: entrarUsuario,
     destinoDe: destinoDe,
+    modulosDe: modulosDe,
     htmlClienteActivo: htmlClienteActivo,
     rolActual: rolActual,
   };
