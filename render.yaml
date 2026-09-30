@@ -4,5 +4,5 @@ services:
     runtime: static
     branch: main
     autoDeployTrigger: commit
-    buildCommand: test -f login.html && test -f reportes/panel.html && echo "static ok"
+    buildCommand: test -f aplicaciones.html && test -f login.html && test -f css/estilos.css && echo "static 2026-09-30"
     staticPublishPath: .
