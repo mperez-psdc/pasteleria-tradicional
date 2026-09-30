@@ -22,7 +22,7 @@
       }).join("");
       const quejas = datos.pedidos.filter(function (pedido) { return pedido.queja; });
       UI.contenido().innerHTML =
-        '<p class="ayuda">Estas cifras salen de lo registrado en el prototipo, no de un estado financiero. Sirven para decidir si la fase siguiente se enciende.</p>' +
+        '<p class="ayuda">Cifras del día, tomadas de lo registrado en este navegador.</p>' +
         '<div class="tarjetas">' +
           '<article class="tarjeta"><p class="ayuda">Cobros de hoy</p><p class="kpi">' + UI.esc(Datos.dinero(resumen.ventaHoy)) + '</p></article>' +
           '<article class="tarjeta"><p class="ayuda">Pedidos en cola</p><p class="kpi">' + (estados.recibido + estados.en_produccion + estados.listo) + '</p></article>' +

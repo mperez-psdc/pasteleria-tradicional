@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aplicaciones · Pastelería Tradicional</title>
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+  <div id="marco"></div>
+  <script src="js/datos.js"></script>
+  <script src="js/comun.js"></script>
+  <script>
+    const UI = PasteleriaUI;
+    if (UI.iniciar({ titulo: "Aplicaciones", aplicaciones: true })) {
+      const rol = UI.rolActual();
+      const apps = UI.modulosDe(rol).map(function (modulo) {
+        return '<a class="app-icono" href="' + UI.esc(modulo.href) + '"><span style="background:' + UI.esc(modulo.color) + '">' + UI.esc(modulo.titulo.slice(0, 1)) + "</span>" + UI.esc(modulo.titulo) + "</a>";
+      }).join("");
+      UI.contenido().innerHTML = '<div class="apps">' + apps + "</div>";
+    }
+  </script>
+</body>
+</html>

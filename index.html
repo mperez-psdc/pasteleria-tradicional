@@ -18,17 +18,10 @@
   </main>
   <script>
     const rol = sessionStorage.getItem("rol");
-    const destinos = {
-      admin: "reportes/panel.html",
-      cajero: "mostrador/pedidos.html",
-      pastelero: "produccion/tablero.html",
-      contador: "contabilidad/libro.html",
-      cliente: "cliente/catalogo.html",
-    };
-    if (rol && destinos[rol]) {
+    if (rol) {
       const seguir = document.querySelector("a.boton");
-      seguir.textContent = "Seguir como " + rol;
-      seguir.href = destinos[rol];
+      seguir.textContent = "Ir a las aplicaciones";
+      seguir.href = "aplicaciones.html";
     }
   </script>
 </body>
