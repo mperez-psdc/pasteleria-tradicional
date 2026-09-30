@@ -2,6 +2,7 @@ services:
   - type: web
     name: pasteleria-tradicional
     runtime: static
-    buildCommand: echo static
-    staticPublishPath: .
     branch: main
+    autoDeployTrigger: commit
+    buildCommand: test -f login.html && test -f reportes/panel.html && echo "static ok"
+    staticPublishPath: .
