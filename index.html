@@ -7,38 +7,28 @@
   <link rel="stylesheet" href="css/estilos.css">
 </head>
 <body>
-  <div id="marco"></div>
-  <script src="js/datos.js"></script>
-  <script src="js/comun.js"></script>
+  <main class="login">
+    <section class="panel entrada">
+      <p class="marca-login">Pastelería Tradicional</p>
+      <h1>Sistema de la pastelería</h1>
+      <p>Pedidos, caja, cocina, compras, inventario, contabilidad y reportes. Tres pasteleros, un mostrador y el mismo local de siempre.</p>
+      <p class="fila"><a class="boton" href="login.html">Entrar</a> <a class="boton secundario" href="publico/inicio.html">Ver la vitrina</a></p>
+      <p class="ayuda">Si abre el archivo suelto, use un servidor local para que las pantallas compartan los datos en este navegador.</p>
+    </section>
+  </main>
   <script>
-    const UI = PasteleriaUI;
-    const Datos = Pasteleria;
-    if (UI.iniciar({ titulo: "Entrada por roles" })) {
-      const caja = UI.contenido();
-      caja.innerHTML =
-        '<section class="hero">' +
-          '<p>Sistema de demostración para la pastelería del caso: tres pasteleros, mostrador y cocina en el mismo local. Cada rol ve solo su trabajo. Los pedidos que cree aquí los ven caja, cocina y gerencia en este mismo navegador.</p>' +
-          '<p class="ayuda">Ábralo con un servidor local. Si abre el archivo suelto, el navegador puede no compartir los datos entre pantallas.</p>' +
-        "</section>" +
-        '<div class="tarjetas">' +
-          '<article class="tarjeta"><h2>Página pública</h2><p class="ayuda">Fase 2. Vitrina y formulario para quien todavía no es cliente.</p><a class="boton secundario" href="publico/inicio.html">Ver la vitrina</a></article>' +
-          '<article class="tarjeta"><h2>Cliente</h2><p class="ayuda">Fase 3. Catálogo, encargo, perfil y calificación después de la entrega.</p><button type="button" data-rol="cliente" data-destino="cliente/catalogo.html">Entrar como cliente</button></article>' +
-          '<article class="tarjeta"><h2>Mostrador</h2><p class="ayuda">Fase 1. Venta sin cuenta, cola de pedidos, comprobante y cierre de caja.</p><button type="button" data-rol="mostrador" data-destino="mostrador/pedidos.html">Entrar a caja</button></article>' +
-          '<article class="tarjeta"><h2>Cocina</h2><p class="ayuda">Fase 1 en la operación. Tareas, fechas y cupo de los tres pasteleros.</p><button type="button" data-rol="pastelero" data-destino="produccion/tablero.html">Entrar a cocina</button></article>' +
-          '<article class="tarjeta"><h2>Gerencia</h2><p class="ayuda">Indicadores, inventario, personal, servicios y marketing, cada uno con su fase.</p><button type="button" data-rol="gerencia" data-destino="gerencia/panel.html">Entrar a gerencia</button></article>' +
-        "</div>" +
-        '<p class="fila" style="margin-top:1rem"><button type="button" class="secundario" id="restaurar">Restaurar datos de ejemplo</button></p>';
-      caja.addEventListener("click", function (evento) {
-        const boton = evento.target.closest("[data-rol]");
-        if (!boton) return;
-        UI.entrar(boton.getAttribute("data-rol"));
-        location.href = boton.getAttribute("data-destino");
-      });
-      document.getElementById("restaurar").addEventListener("click", function () {
-        Datos.restaurar();
-        sessionStorage.removeItem("clienteActivo");
-        UI.mensaje("Volvieron los datos de ejemplo: clienta fiel, cliente nuevo, encargo a medida, tarea atrasada y la luz vencida.", "ok");
-      });
+    const rol = sessionStorage.getItem("rol");
+    const destinos = {
+      admin: "reportes/panel.html",
+      cajero: "mostrador/pedidos.html",
+      pastelero: "produccion/tablero.html",
+      contador: "contabilidad/libro.html",
+      cliente: "cliente/catalogo.html",
+    };
+    if (rol && destinos[rol]) {
+      const seguir = document.querySelector("a.boton");
+      seguir.textContent = "Seguir como " + rol;
+      seguir.href = destinos[rol];
     }
   </script>
 </body>

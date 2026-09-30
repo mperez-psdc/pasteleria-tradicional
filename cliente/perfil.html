@@ -29,10 +29,24 @@
           '<h2>' + UI.esc(cliente.nombre) + '</h2>' +
           '<p>Teléfono ' + UI.esc(cliente.telefono || "—") + (cliente.correo ? " · " + UI.esc(cliente.correo) : "") + '</p>' +
           '<p>Puntos por compras ya entregadas: <strong>' + Datos.puntosDe(datos, cliente.id) + '</strong>. Un punto por cada 10 dólares entregados. No hay ranking de clientes.</p>' +
+          '<form id="perfil">' +
+            '<p class="ayuda">Edad, sexo y ocupación son opcionales y se usan solo en conjunto, para decidir surtido y horario. No activan publicidad.</p>' +
+            '<label>Rango de edad<select name="rango"><option value="">Sin dato</option>' + ["18-24", "25-34", "35-44", "45-54", "55+"].map(function (rango) { return '<option' + (cliente.rangoEdad === rango ? " selected" : "") + ">" + rango + "</option>"; }).join("") + '</select></label>' +
+            '<label>Sexo<select name="sexo"><option value="">Sin dato</option><option value="F"' + (cliente.sexo === "F" ? " selected" : "") + '>Mujer</option><option value="M"' + (cliente.sexo === "M" ? " selected" : "") + '>Hombre</option></select></label>' +
+            '<label>Situación<select name="laboral"><option value="">Sin dato</option><option value="trabaja"' + (cliente.laboral === "trabaja" ? " selected" : "") + '>Trabaja</option><option value="estudia"' + (cliente.laboral === "estudia" ? " selected" : "") + '>Estudia</option><option value="jubilado"' + (cliente.laboral === "jubilado" ? " selected" : "") + '>Jubilado</option></select></label>' +
+            '<button type="submit" class="secundario">Guardar perfil</button>' +
+          '</form>' +
           '<label class="checks"><input type="checkbox" id="permiso"' + (cliente.consentimiento ? " checked" : "") + '> Acepto mensajes de ofertas. Puedo quitarlo cuando quiera, y sigo pudiendo comprar.</label>' +
         '</div>' +
         '<div class="panel" style="margin-top:1rem"><h2>Historial</h2><div class="tabla-wrap"><table><thead><tr><th>Comprobante</th><th>Estado</th><th>Retiro</th><th>Total</th></tr></thead><tbody>' + filas + '</tbody></table></div></div>';
-      document.getElementById("cliente-activo").addEventListener("change", function (evento) {
+      document.getElementById("perfil").addEventListener("submit", function (evento) {
+        evento.preventDefault();
+        const forma = new FormData(evento.target);
+        const resultado = Datos.guardarPerfil(UI.clienteActivo(), { rangoEdad: forma.get("rango"), sexo: forma.get("sexo"), laboral: forma.get("laboral") });
+        UI.mensaje(resultado.ok ? "Perfil actualizado. Esos datos no activan campañas." : resultado.error, resultado.ok ? "ok" : "error");
+      });
+      const selector = document.getElementById("cliente-activo");
+      if (selector) selector.addEventListener("change", function (evento) {
         UI.fijarClienteActivo(evento.target.value);
         pintar();
       });

@@ -19,6 +19,7 @@
         if (evento.target.id === "venta") venderEstandar(evento);
         if (evento.target.id === "medida") venderMedida(evento);
         if (evento.target.id === "caja") cerrar(evento);
+        if (evento.target.id === "csv") descargar(evento);
       });
       caja.addEventListener("click", enClick);
       pintar();
@@ -82,6 +83,7 @@
           '<label>Efectivo contado<input type="number" name="contado" min="0" step="0.01" required></label>' +
           '<label>Nota<input name="nota" maxlength="140"></label>' +
           '<button type="submit">Guardar cuadre</button></form>' +
+        '<form class="panel" id="csv" style="margin-top:1rem"><h2>Comprobantes</h2><p class="ayuda">Listado interno para el periodo. No es el libro fiscal.</p><label>Desde<input type="date" name="desde" required value="' + UI.esc(Datos.sumarDias(Datos.hoy(), -30)) + '"></label><label>Hasta<input type="date" name="hasta" required value="' + UI.esc(Datos.hoy()) + '"></label><button type="submit" class="secundario">Descargar CSV</button></form>' +
         '<div id="recibo"></div>';
     }
 
@@ -200,6 +202,26 @@
       pintar();
       if (accion === "entregar" && pedido) mostrarRecibo(pedido);
       UI.mensaje(texto, "ok");
+    }
+
+    function descargar(evento) {
+      evento.preventDefault();
+      const forma = new FormData(evento.target);
+      const desde = forma.get("desde");
+      const hasta = forma.get("hasta");
+      const datos = Datos.cargar();
+      const filas = ["numero,fecha,cliente,estado,total,saldo"];
+      datos.pedidos.forEach(function (pedido) {
+        if (pedido.fechaCreacion < desde || pedido.fechaCreacion > hasta) return;
+        filas.push([pedido.numero, pedido.fechaCreacion, '"' + pedido.clienteNombre.replace(/"/g, "") + '"', pedido.estado, pedido.total, Datos.saldo(pedido)].join(","));
+      });
+      const blob = new Blob([filas.join("\n")], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const enlace = document.createElement("a");
+      enlace.href = url;
+      enlace.download = "comprobantes.csv";
+      enlace.click();
+      URL.revokeObjectURL(url);
     }
 
     function cerrar(evento) {

@@ -40,8 +40,8 @@
 
   function semilla() {
     const hoyIso = hoy();
-    return {
-      version: 1,
+    const datos = {
+      version: 2,
       productos: [
         { id: "p1", nombre: "Pastel de chocolate", descripcion: "Ocho porciones, cobertura de chocolate.", precio: 28, stock: 4, rotacion: "alta", tipo: "estandar" },
         { id: "p2", nombre: "Tres leches", descripcion: "Bizcocho húmedo, para llevar o encargar.", precio: 22, stock: 3, rotacion: "alta", tipo: "estandar" },
@@ -57,8 +57,18 @@
         { id: "i4", nombre: "Chocolate", cantidad: 5, unidad: "kg", minimo: 2, vence: sumarDias(hoyIso, 40) },
       ],
       clientes: [
-        { id: "c1", nombre: "Doña Marta Ruiz", telefono: "6000-1101", correo: "", tipo: "fiel", canal: "mostrador", consentimiento: false, desde: sumarDias(hoyIso, -400) },
-        { id: "c2", nombre: "Luis Ortega", telefono: "6000-2240", correo: "luis.ortega@correo.com", tipo: "nuevo", canal: "web", consentimiento: true, desde: sumarDias(hoyIso, -12) },
+        { id: "c1", nombre: "Doña Marta Ruiz", telefono: "6000-1101", correo: "", tipo: "fiel", canal: "mostrador", consentimiento: false, desde: sumarDias(hoyIso, -400), sexo: "F", rangoEdad: "55+", laboral: "jubilado" },
+        { id: "c2", nombre: "Luis Ortega", telefono: "6000-2240", correo: "luis.ortega@correo.com", tipo: "nuevo", canal: "web", consentimiento: true, desde: sumarDias(hoyIso, -12), sexo: "M", rangoEdad: "25-34", laboral: "trabaja" },
+        { id: "c3", nombre: "Andrea Pérez", telefono: "6000-3301", correo: "", tipo: "fiel", canal: "mostrador", consentimiento: true, desde: sumarDias(hoyIso, -200), sexo: "F", rangoEdad: "25-34", laboral: "trabaja" },
+        { id: "c4", nombre: "Sofía Chen", telefono: "6000-3302", correo: "", tipo: "fiel", canal: "web", consentimiento: true, desde: sumarDias(hoyIso, -180), sexo: "F", rangoEdad: "18-24", laboral: "estudia" },
+        { id: "c5", nombre: "Carmen Díaz", telefono: "6000-3303", correo: "", tipo: "fiel", canal: "mostrador", consentimiento: false, desde: sumarDias(hoyIso, -300), sexo: "F", rangoEdad: "45-54", laboral: "trabaja" },
+        { id: "c6", nombre: "Rosa Méndez", telefono: "6000-3304", correo: "", tipo: "fiel", canal: "mostrador", consentimiento: true, desde: sumarDias(hoyIso, -90), sexo: "F", rangoEdad: "35-44", laboral: "trabaja" },
+        { id: "c7", nombre: "Elena Vásquez", telefono: "6000-3305", correo: "", tipo: "fiel", canal: "mostrador", consentimiento: false, desde: sumarDias(hoyIso, -500), sexo: "F", rangoEdad: "55+", laboral: "jubilado" },
+        { id: "c8", nombre: "Jorge Salas", telefono: "6000-3306", correo: "", tipo: "nuevo", canal: "web", consentimiento: true, desde: sumarDias(hoyIso, -40), sexo: "M", rangoEdad: "18-24", laboral: "estudia" },
+        { id: "c9", nombre: "Mario Quiel", telefono: "6000-3307", correo: "", tipo: "fiel", canal: "mostrador", consentimiento: false, desde: sumarDias(hoyIso, -220), sexo: "M", rangoEdad: "35-44", laboral: "trabaja" },
+        { id: "c10", nombre: "Pedro Alonso", telefono: "6000-3308", correo: "", tipo: "fiel", canal: "mostrador", consentimiento: true, desde: sumarDias(hoyIso, -150), sexo: "M", rangoEdad: "45-54", laboral: "trabaja" },
+        { id: "c11", nombre: "Héctor Núñez", telefono: "6000-3309", correo: "", tipo: "fiel", canal: "mostrador", consentimiento: false, desde: sumarDias(hoyIso, -420), sexo: "M", rangoEdad: "55+", laboral: "jubilado" },
+        { id: "c12", nombre: "Valeria Ramos", telefono: "6000-3310", correo: "", tipo: "nuevo", canal: "web", consentimiento: true, desde: sumarDias(hoyIso, -20), sexo: "F", rangoEdad: "25-34", laboral: "trabaja" },
       ],
       pasteleros: [
         { id: "b1", nombre: "Ana Morales" },
@@ -168,7 +178,33 @@
       campanas: [],
       mermas: [],
       secuencia: 1004,
+      usuarios: [
+        { usuario: "admin", clave: "admin", nombre: "Gerencia", rol: "admin" },
+        { usuario: "cajero", clave: "cajero", nombre: "Mostrador", rol: "cajero" },
+        { usuario: "pastelero", clave: "pastelero", nombre: "Ana Morales", rol: "pastelero", pasteleroId: "b1" },
+        { usuario: "contador", clave: "contador", nombre: "Contabilidad", rol: "contador" },
+        { usuario: "cliente", clave: "cliente", nombre: "Luis Ortega", rol: "cliente", clienteId: "c2" },
+      ],
+      ventas: [],
+      proveedores: [
+        { id: "pr1", nombre: "Harinas del Istmo", contacto: "6001-1000", plazoDias: 15 },
+        { id: "pr2", nombre: "Lácteos Chiriquí", contacto: "6001-2000", plazoDias: 8 },
+      ],
+      ordenes: [],
+      cuentas: [],
+      movimientos: [],
+      gastos: [],
+      recetas: {
+        p1: [{ insumoId: "i1", cantidad: 0.35 }, { insumoId: "i2", cantidad: 0.08 }, { insumoId: "i3", cantidad: 0.2 }, { insumoId: "i4", cantidad: 0.15 }],
+        p2: [{ insumoId: "i1", cantidad: 0.3 }, { insumoId: "i2", cantidad: 0.05 }, { insumoId: "i3", cantidad: 0.25 }],
+        p3: [{ insumoId: "i1", cantidad: 0.15 }, { insumoId: "i2", cantidad: 0.05 }, { insumoId: "i3", cantidad: 0.1 }],
+        p4: [{ insumoId: "i1", cantidad: 0.2 }, { insumoId: "i2", cantidad: 0.12 }, { insumoId: "i3", cantidad: 0.05 }],
+        p5: [{ insumoId: "i1", cantidad: 0.25 }, { insumoId: "i2", cantidad: 0.08 }, { insumoId: "i3", cantidad: 0.2 }],
+        p6: [{ insumoId: "i1", cantidad: 0.5 }, { insumoId: "i2", cantidad: 0.25 }, { insumoId: "i3", cantidad: 0.3 }, { insumoId: "i4", cantidad: 0.2 }],
+      },
     };
+    cargarHistoria(datos, hoyIso);
+    return datos;
   }
 
   function cargar() {
@@ -180,7 +216,7 @@
         return datos;
       }
       const datos = JSON.parse(crudo);
-      if (!datos || datos.version !== 1) return restaurar();
+      if (!datos || datos.version !== 2) return restaurar();
       return datos;
     } catch (error) {
       return restaurar();
@@ -252,9 +288,12 @@
     if (nombre.length < 3) return fallo("Escriba el nombre de quien encarga.");
     if (telefono.length < 7) return fallo("Hace falta un teléfono para avisar el pedido.");
     const ya = datos.clientes.find(function (cliente) { return cliente.telefono === telefono; });
-    if (ya) {
+      if (ya) {
       ya.consentimiento = Boolean(entrada.consentimiento);
       if (correo) ya.correo = correo;
+      if (entrada.sexo) ya.sexo = entrada.sexo;
+      if (entrada.rangoEdad) ya.rangoEdad = entrada.rangoEdad;
+      if (entrada.laboral) ya.laboral = entrada.laboral;
       guardar(datos);
       return { ok: true, cliente: ya, actualizado: true };
     }
@@ -267,6 +306,9 @@
       canal: "web",
       consentimiento: Boolean(entrada.consentimiento),
       desde: hoy(),
+      sexo: entrada.sexo || "",
+      rangoEdad: entrada.rangoEdad || "",
+      laboral: entrada.laboral || "",
     };
     datos.clientes.push(cliente);
     guardar(datos);
@@ -432,6 +474,7 @@
       calificacion: null,
       queja: null,
       pasteleroId: null,
+      hora: new Date().getHours(),
     };
   }
 
@@ -497,6 +540,8 @@
     if (tarea.pasteleroId !== pasteleroId) return fallo("Esa tarea es de otro pastelero.");
     if (tarea.estado !== "pendiente") return fallo("La tarea ya no está pendiente.");
     const pedido = pedidoPorId(datos, tarea.pedidoId);
+    const falta = consumirReceta(datos, pedido);
+    if (falta) return fallo("No se puede cerrar la tarea. Falta insumo: " + falta + ".");
     tarea.estado = "terminada";
     tarea.cerradaEn = hoy();
     tarea.aTiempo = tarea.fechaEntrega >= hoy();
@@ -560,6 +605,7 @@
     if (!insumo) return fallo("No se encontró el insumo.");
     if (!(qty > 0)) return fallo("Indique cuánto entró.");
     insumo.cantidad = redondear(insumo.cantidad + qty);
+    anotarMovimiento(datos, "ajuste", insumo.id, qty, "Entrada manual");
     guardar(datos);
     return { ok: true, insumo: insumo };
   }
@@ -574,6 +620,7 @@
     if (texto.length < 3) return fallo("Escriba el motivo de la merma.");
     insumo.cantidad = redondear(insumo.cantidad - qty);
     datos.mermas.push({ id: nuevoId("m"), insumoId: insumo.id, nombre: insumo.nombre, cantidad: qty, unidad: insumo.unidad, motivo: texto, fecha: hoy() });
+    anotarMovimiento(datos, "merma", insumo.id, qty, texto);
     guardar(datos);
     return { ok: true, insumo: insumo };
   }
@@ -585,6 +632,7 @@
     if (servicio.estado === "registrado") return fallo("Ese pago ya estaba registrado.");
     servicio.estado = "registrado";
     servicio.registradoEn = hoy();
+    anotarGasto(datos, servicio.nombre, "servicio", servicio.monto, servicio.id);
     guardar(datos);
     return { ok: true, servicio: servicio, aviso: "Quedó el registro. Esto no debitó ninguna cuenta bancaria." };
   }
@@ -675,6 +723,434 @@
     return Math.floor(total / 10);
   }
 
+  function fechaEnMes(baseIso, mesesAtras, dia) {
+    const d = new Date(baseIso + "T12:00:00");
+    d.setMonth(d.getMonth() - mesesAtras);
+    const ultimo = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+    d.setDate(Math.min(dia, ultimo));
+    return iso(d);
+  }
+
+  function cargarHistoria(datos, hoyIso) {
+    let x = 20260929;
+    function rnd() {
+      x = (x * 1664525 + 1013904223) % 4294967296;
+      return x / 4294967296;
+    }
+    function elegir(lista) {
+      return lista[Math.floor(rnd() * lista.length)];
+    }
+    const pesosMes = [40, 32, 70, 90, 55, 48, 48, 40, 55, 70, 80, 100];
+    const catalogo = [
+      { id: "p1", nombre: "Pastel de chocolate", precio: 28, peso: 5 },
+      { id: "p2", nombre: "Tres leches", precio: 22, peso: 4 },
+      { id: "p3", nombre: "Cupcakes de vainilla", precio: 12, peso: 4 },
+      { id: "p4", nombre: "Galletas de mantequilla", precio: 8, peso: 1 },
+      { id: "p5", nombre: "Brazo de gitano", precio: 18, peso: 1 },
+    ];
+    const bolsa = [];
+    catalogo.forEach(function (producto) {
+      for (let i = 0; i < producto.peso; i += 1) bolsa.push(producto);
+    });
+    const clientes = datos.clientes.filter(function (cliente) { return cliente.sexo; });
+    for (let meses = 11; meses >= 0; meses -= 1) {
+      const ancla = new Date(hoyIso + "T12:00:00");
+      ancla.setMonth(ancla.getMonth() - meses);
+      const cuantos = pesosMes[ancla.getMonth()];
+      for (let n = 0; n < cuantos; n += 1) {
+        const cliente = elegir(clientes);
+        const producto = elegir(bolsa);
+        let hora = 8 + Math.floor(rnd() * 12);
+        if (cliente.sexo === "F" && rnd() < 0.62) hora = 8 + Math.floor(rnd() * 4);
+        if (cliente.sexo === "M" && rnd() < 0.45) hora = 16 + Math.floor(rnd() * 4);
+        if (cliente.laboral === "estudia" && rnd() < 0.55) hora = 14 + Math.floor(rnd() * 3);
+        if (hora > 19) hora = 19;
+        datos.ventas.push({
+          id: "vh-" + meses + "-" + n,
+          fecha: fechaEnMes(hoyIso, meses, 1 + Math.floor(rnd() * 27)),
+          hora: hora,
+          clienteId: cliente.id,
+          sexo: cliente.sexo,
+          rangoEdad: cliente.rangoEdad,
+          laboral: cliente.laboral,
+          productoId: producto.id,
+          nombre: producto.nombre,
+          cantidad: 1,
+          total: producto.precio,
+          canal: cliente.canal,
+        });
+      }
+    }
+    for (let meses = 12; meses >= 1; meses -= 1) {
+      const fecha = fechaEnMes(hoyIso, meses, 5);
+      [["Luz", 180, "servicio"], ["Agua", 40, "servicio"], ["Teléfono", 28, "servicio"], ["Salarios", 650, "nomina"]].forEach(function (fila, indice) {
+        datos.gastos.push({ id: "gh-" + meses + "-" + indice, fecha: fecha, concepto: fila[0], categoria: fila[2], monto: fila[1], origen: "historia" });
+      });
+      datos.gastos.push({
+        id: "gi-" + meses,
+        fecha: fechaEnMes(hoyIso, meses, 12),
+        concepto: "Compra de insumos del mes",
+        categoria: "insumo",
+        monto: 420 + Math.round(rnd() * 180),
+        origen: "historia",
+      });
+    }
+    const hace = sumarDias(hoyIso, -20);
+    const totalOc = redondear(10 * 1.4 + 2 * 9);
+    datos.ordenes.push({
+      id: "oc1",
+      numero: "OC-2001",
+      proveedorId: "pr1",
+      estado: "recibida",
+      fecha: hace,
+      lineas: [
+        { insumoId: "i1", nombre: "Harina", cantidad: 10, costo: 1.4 },
+        { insumoId: "i4", nombre: "Chocolate", cantidad: 2, costo: 9 },
+      ],
+      total: totalOc,
+    });
+    datos.cuentas.push({ id: "cp1", origen: "compra", refId: "oc1", concepto: "OC-2001 · Harinas del Istmo", monto: totalOc, vence: sumarDias(hace, 15), estado: "pendiente", pagadaEn: null });
+    datos.gastos.push({ id: "g-oc1", fecha: hace, concepto: "OC-2001 insumos", categoria: "insumo", monto: totalOc, origen: "oc1" });
+    datos.movimientos.push(
+      { id: "mv1", tipo: "compra", insumoId: "i1", cantidad: 10, fecha: hace, nota: "OC-2001", refId: "oc1" },
+      { id: "mv2", tipo: "compra", insumoId: "i4", cantidad: 2, fecha: hace, nota: "OC-2001", refId: "oc1" }
+    );
+    const totalOc2 = redondear(4 * 7.5 + 6 * 3.2);
+    datos.ordenes.push({
+      id: "oc2",
+      numero: "OC-2002",
+      proveedorId: "pr2",
+      estado: "enviada",
+      fecha: sumarDias(hoyIso, -2),
+      lineas: [
+        { insumoId: "i2", nombre: "Mantequilla", cantidad: 4, costo: 7.5 },
+        { insumoId: "i3", nombre: "Huevos", cantidad: 6, costo: 3.2 },
+      ],
+      total: totalOc2,
+    });
+  }
+
+  function anotarMovimiento(datos, tipo, insumoId, cantidad, nota, refId) {
+    datos.movimientos = datos.movimientos || [];
+    datos.movimientos.push({ id: nuevoId("mv"), tipo: tipo, insumoId: insumoId, cantidad: redondear(cantidad), fecha: hoy(), nota: nota || "", refId: refId || "" });
+  }
+
+  function anotarGasto(datos, concepto, categoria, monto, origen) {
+    datos.gastos = datos.gastos || [];
+    datos.gastos.push({ id: nuevoId("g"), fecha: hoy(), concepto: concepto, categoria: categoria, monto: redondear(monto), origen: origen || "" });
+  }
+
+  function consumirReceta(datos, pedido) {
+    if (!pedido || !datos.recetas) return null;
+    const usos = [];
+    const faltantes = [];
+    pedido.items.forEach(function (item) {
+      (datos.recetas[item.productoId] || []).forEach(function (linea) {
+        const necesidad = redondear(linea.cantidad * item.cantidad);
+        const insumo = datos.insumos.find(function (row) { return row.id === linea.insumoId; });
+        if (!insumo || insumo.cantidad < necesidad) faltantes.push((insumo ? insumo.nombre : linea.insumoId) + " (" + necesidad + ")");
+        else usos.push({ insumo: insumo, cantidad: necesidad });
+      });
+    });
+    if (faltantes.length) return faltantes.join(", ");
+    usos.forEach(function (uso) {
+      uso.insumo.cantidad = redondear(uso.insumo.cantidad - uso.cantidad);
+      anotarMovimiento(datos, "consumo", uso.insumo.id, uso.cantidad, "Producción " + (pedido.numero || ""), pedido.id);
+    });
+    return null;
+  }
+
+  function validarUsuario(usuario, clave) {
+    const datos = cargar();
+    const hallado = (datos.usuarios || []).find(function (item) {
+      return item.usuario === String(usuario || "").trim() && item.clave === String(clave || "");
+    });
+    if (!hallado) return fallo("Usuario o clave incorrectos.");
+    return { ok: true, usuario: hallado };
+  }
+
+  function guardarPerfil(clienteId, campos) {
+    const datos = cargar();
+    const cliente = datos.clientes.find(function (item) { return item.id === clienteId; });
+    if (!cliente) return fallo("No se encontró el cliente.");
+    ["sexo", "rangoEdad", "laboral"].forEach(function (campo) {
+      if (campos[campo] !== undefined) cliente[campo] = campos[campo];
+    });
+    guardar(datos);
+    return { ok: true, cliente: cliente };
+  }
+
+  function guardarProveedor(entrada) {
+    const datos = cargar();
+    const nombre = (entrada.nombre || "").trim();
+    if (nombre.length < 3) return fallo("Escriba el nombre del proveedor.");
+    const plazo = Number(entrada.plazoDias);
+    if (!(plazo >= 0)) return fallo("Indique el plazo de pago en días.");
+    let proveedor = datos.proveedores.find(function (item) { return item.id === entrada.id; });
+    if (!proveedor) {
+      proveedor = { id: nuevoId("pr") };
+      datos.proveedores.push(proveedor);
+    }
+    proveedor.nombre = nombre;
+    proveedor.contacto = (entrada.contacto || "").trim();
+    proveedor.plazoDias = plazo;
+    guardar(datos);
+    return { ok: true, proveedor: proveedor };
+  }
+
+  function crearOrden(entrada) {
+    const datos = cargar();
+    const proveedor = datos.proveedores.find(function (item) { return item.id === entrada.proveedorId; });
+    if (!proveedor) return fallo("Elija un proveedor.");
+    const lineas = (entrada.lineas || []).map(function (linea) {
+      const insumo = datos.insumos.find(function (item) { return item.id === linea.insumoId; });
+      const cantidad = Number(linea.cantidad);
+      const costo = Number(linea.costo);
+      if (!insumo || !(cantidad > 0) || !(costo >= 0)) return null;
+      return { insumoId: insumo.id, nombre: insumo.nombre, cantidad: cantidad, costo: costo };
+    }).filter(Boolean);
+    if (!lineas.length) return fallo("La orden necesita al menos un insumo con cantidad y costo.");
+    const total = redondear(lineas.reduce(function (suma, linea) { return suma + linea.cantidad * linea.costo; }, 0));
+    datos.secuenciaOc = (datos.secuenciaOc || 2002) + 1;
+    const orden = {
+      id: nuevoId("oc"),
+      numero: "OC-" + datos.secuenciaOc,
+      proveedorId: proveedor.id,
+      estado: "borrador",
+      fecha: hoy(),
+      lineas: lineas,
+      total: total,
+    };
+    datos.ordenes.push(orden);
+    guardar(datos);
+    return { ok: true, orden: orden };
+  }
+
+  function enviarOrden(id) {
+    const datos = cargar();
+    const orden = datos.ordenes.find(function (item) { return item.id === id; });
+    if (!orden) return fallo("No se encontró la orden.");
+    if (orden.estado !== "borrador") return fallo("Solo se envía una orden en borrador.");
+    orden.estado = "enviada";
+    guardar(datos);
+    return { ok: true, orden: orden };
+  }
+
+  function recibirOrden(id) {
+    const datos = cargar();
+    const orden = datos.ordenes.find(function (item) { return item.id === id; });
+    if (!orden) return fallo("No se encontró la orden.");
+    if (orden.estado !== "enviada") return fallo("Solo se recibe una orden ya enviada.");
+    const proveedor = datos.proveedores.find(function (item) { return item.id === orden.proveedorId; });
+    orden.lineas.forEach(function (linea) {
+      const insumo = datos.insumos.find(function (item) { return item.id === linea.insumoId; });
+      if (!insumo) return;
+      insumo.cantidad = redondear(insumo.cantidad + Number(linea.cantidad));
+      anotarMovimiento(datos, "compra", insumo.id, linea.cantidad, orden.numero, orden.id);
+    });
+    orden.estado = "recibida";
+    const plazo = proveedor ? proveedor.plazoDias : 0;
+    datos.cuentas.push({
+      id: nuevoId("cp"),
+      origen: "compra",
+      refId: orden.id,
+      concepto: orden.numero + " · " + (proveedor ? proveedor.nombre : "Proveedor"),
+      monto: orden.total,
+      vence: sumarDias(hoy(), plazo),
+      estado: "pendiente",
+      pagadaEn: null,
+    });
+    anotarGasto(datos, orden.numero + " insumos", "insumo", orden.total, orden.id);
+    guardar(datos);
+    return { ok: true, orden: orden };
+  }
+
+  function anularOrden(id) {
+    const datos = cargar();
+    const orden = datos.ordenes.find(function (item) { return item.id === id; });
+    if (!orden) return fallo("No se encontró la orden.");
+    if (orden.estado === "recibida") return fallo("La orden ya entró al inventario. No se anula; haga un ajuste.");
+    if (orden.estado === "anulada") return fallo("Esa orden ya estaba anulada.");
+    orden.estado = "anulada";
+    guardar(datos);
+    return { ok: true, orden: orden };
+  }
+
+  function pagarCuenta(id) {
+    const datos = cargar();
+    const cuenta = (datos.cuentas || []).find(function (item) { return item.id === id; });
+    if (!cuenta) return fallo("No se encontró la cuenta.");
+    if (cuenta.estado === "pagada") return fallo("Esa cuenta ya estaba pagada.");
+    cuenta.estado = "pagada";
+    cuenta.pagadaEn = hoy();
+    guardar(datos);
+    return { ok: true, cuenta: cuenta, aviso: "Quedó el pago registrado. No salió dinero de un banco real." };
+  }
+
+  function registrarGasto(concepto, categoria, monto) {
+    const datos = cargar();
+    const texto = (concepto || "").trim();
+    const valor = Number(monto);
+    const cat = categoria === "nomina" || categoria === "servicio" || categoria === "insumo" ? categoria : "otro";
+    if (texto.length < 3) return fallo("Escriba el concepto.");
+    if (!(valor > 0)) return fallo("El monto tiene que ser mayor que cero.");
+    anotarGasto(datos, texto, cat, valor, "manual");
+    guardar(datos);
+    return { ok: true };
+  }
+
+  function guardarProducto(entrada) {
+    const datos = cargar();
+    const producto = datos.productos.find(function (item) { return item.id === entrada.id; });
+    if (!producto || producto.tipo !== "estandar") return fallo("Ese producto no se ajusta desde aquí.");
+    const stock = Number(entrada.stock);
+    const precio = Number(entrada.precio);
+    if (Number.isNaN(stock) || stock < 0) return fallo("La existencia no puede ser negativa.");
+    if (!(precio > 0)) return fallo("Indique un precio.");
+    const delta = redondear(stock - producto.stock);
+    producto.stock = stock;
+    producto.precio = redondear(precio);
+    if (delta !== 0) {
+      datos.movimientos = datos.movimientos || [];
+      datos.movimientos.push({ id: nuevoId("mv"), tipo: "ajuste", insumoId: "", productoId: producto.id, cantidad: delta, fecha: hoy(), nota: "Ajuste de vitrina " + producto.nombre, refId: producto.id });
+    }
+    guardar(datos);
+    return { ok: true, producto: producto };
+  }
+
+  function visitasPeriodo(datos, desde, hasta) {
+    const lista = [];
+    (datos.ventas || []).forEach(function (venta) {
+      if (venta.fecha >= desde && venta.fecha <= hasta) lista.push(venta);
+    });
+    datos.pedidos.forEach(function (pedido) {
+      if (pedido.estado !== "entregado" || !pedido.entregadoEn) return;
+      if (pedido.entregadoEn < desde || pedido.entregadoEn > hasta) return;
+      const cliente = datos.clientes.find(function (item) { return item.id === pedido.clienteId; });
+      lista.push({
+        fecha: pedido.entregadoEn,
+        hora: pedido.hora == null ? 12 : pedido.hora,
+        clienteId: pedido.clienteId,
+        sexo: cliente ? cliente.sexo || "" : "",
+        rangoEdad: cliente ? cliente.rangoEdad || "" : "",
+        laboral: cliente ? cliente.laboral || "" : "",
+        total: pedido.total,
+        nombre: pedido.items.map(function (item) { return item.nombre; }).join(", "),
+      });
+    });
+    return lista;
+  }
+
+  function diasEntre(desde, hasta) {
+    const a = new Date(desde + "T12:00:00");
+    const b = new Date(hasta + "T12:00:00");
+    return Math.round((b - a) / 86400000) + 1;
+  }
+
+  function reporte(desde, hasta) {
+    const datos = cargar();
+    const visitas = visitasPeriodo(datos, desde, hasta);
+    const venta = redondear(visitas.reduce(function (suma, visita) { return suma + visita.total; }, 0));
+    const ids = {};
+    visitas.forEach(function (visita) { if (visita.clienteId) ids[visita.clienteId] = true; });
+    const activos = Object.keys(ids).length;
+    const horas = [];
+    for (let hora = 8; hora <= 19; hora += 1) {
+      const delHora = visitas.filter(function (visita) { return Number(visita.hora) === hora; });
+      horas.push({
+        hora: hora,
+        mujeres: delHora.filter(function (visita) { return visita.sexo === "F"; }).length,
+        hombres: delHora.filter(function (visita) { return visita.sexo === "M"; }).length,
+        total: delHora.length,
+      });
+    }
+    const rangos = ["18-24", "25-34", "35-44", "45-54", "55+"];
+    const edades = rangos.map(function (rango) {
+      return {
+        rango: rango,
+        mujeres: visitas.filter(function (visita) { return visita.rangoEdad === rango && visita.sexo === "F"; }).length,
+        hombres: visitas.filter(function (visita) { return visita.rangoEdad === rango && visita.sexo === "M"; }).length,
+      };
+    });
+    const laboral = ["trabaja", "estudia", "jubilado"].map(function (clave) {
+      const grupo = visitas.filter(function (visita) { return visita.laboral === clave; });
+      const monto = redondear(grupo.reduce(function (suma, visita) { return suma + visita.total; }, 0));
+      return { clave: clave, visitas: grupo.length, venta: monto, ticket: grupo.length ? redondear(monto / grupo.length) : 0 };
+    });
+    const porMes = {};
+    visitas.forEach(function (visita) {
+      const mes = visita.fecha.slice(0, 7);
+      porMes[mes] = (porMes[mes] || 0) + 1;
+    });
+    const largo = diasEntre(desde, hasta);
+    const anteriorHasta = sumarDias(desde, -1);
+    const anteriorDesde = sumarDias(anteriorHasta, -(largo - 1));
+    const previas = visitasPeriodo(datos, anteriorDesde, anteriorHasta);
+    const antes = {};
+    const ahora = {};
+    previas.forEach(function (visita) { if (visita.clienteId) antes[visita.clienteId] = true; });
+    visitas.forEach(function (visita) { if (visita.clienteId) ahora[visita.clienteId] = true; });
+    const baseAntes = Object.keys(antes).length;
+    const volvieron = Object.keys(antes).filter(function (id) { return ahora[id]; }).length;
+    const nuevos = datos.clientes.filter(function (cliente) { return cliente.tipo === "nuevo" && cliente.desde >= desde && cliente.desde <= hasta; }).length;
+    const gastos = (datos.gastos || []).filter(function (gasto) { return gasto.fecha >= desde && gasto.fecha <= hasta; });
+    const costo = redondear(gastos.filter(function (gasto) { return gasto.categoria === "insumo"; }).reduce(function (suma, gasto) { return suma + gasto.monto; }, 0));
+    const fijos = redondear(gastos.filter(function (gasto) { return gasto.categoria !== "insumo"; }).reduce(function (suma, gasto) { return suma + gasto.monto; }, 0));
+    const comprado = (datos.movimientos || []).filter(function (mov) { return mov.tipo === "compra" && mov.fecha >= desde && mov.fecha <= hasta; }).reduce(function (suma, mov) { return suma + mov.cantidad; }, 0);
+    const perdido = (datos.movimientos || []).filter(function (mov) { return mov.tipo === "merma" && mov.fecha >= desde && mov.fecha <= hasta; }).reduce(function (suma, mov) { return suma + mov.cantidad; }, 0);
+    const opiniones = datos.pedidos.filter(function (pedido) { return pedido.calificacion && pedido.calificacion.fecha >= desde && pedido.calificacion.fecha <= hasta; });
+    const conFecha = datos.pedidos.filter(function (pedido) { return pedido.estado === "entregado" && !pedido.entregaInmediata && pedido.entregadoEn >= desde && pedido.entregadoEn <= hasta; });
+    const aTiempo = conFecha.filter(function (pedido) { return pedido.entregadoEn <= pedido.fechaEntrega; }).length;
+    const horaFuerte = horas.slice().sort(function (a, b) { return b.total - a.total; })[0];
+    const conVisitas = horas.filter(function (hora) { return hora.total > 0; });
+    const horaFloja = (conVisitas.length ? conVisitas : horas).slice().sort(function (a, b) { return a.total - b.total; })[0];
+    const segmentos = [];
+    edades.forEach(function (fila) {
+      [["F", "mujeres", fila.mujeres], ["M", "hombres", fila.hombres]].forEach(function (par) {
+        const monto = visitas.filter(function (visita) { return visita.rangoEdad === fila.rango && visita.sexo === par[0]; }).reduce(function (suma, visita) { return suma + visita.total; }, 0);
+        segmentos.push({ etiqueta: (par[0] === "F" ? "Mujeres " : "Hombres ") + fila.rango, venta: monto, visitas: par[2] });
+      });
+    });
+    segmentos.sort(function (a, b) { return b.venta - a.venta; });
+    const manana = visitas.filter(function (visita) { return visita.hora < 12; }).length;
+    const tarde = visitas.filter(function (visita) { return visita.hora >= 12 && visita.hora < 16; }).length;
+    const noche = visitas.filter(function (visita) { return visita.hora >= 16; }).length;
+    const franjasTotal = Math.max(1, manana + tarde + noche);
+    return {
+      desde: desde,
+      hasta: hasta,
+      ilustrativo: true,
+      venta: venta,
+      ticket: visitas.length ? redondear(venta / visitas.length) : 0,
+      visitas: visitas.length,
+      activos: activos,
+      visitasPorCliente: activos ? redondear(visitas.length / activos) : 0,
+      horas: horas,
+      edades: edades,
+      laboral: laboral,
+      meses: porMes,
+      recompra: baseAntes ? Math.round((volvieron / baseAntes) * 100) : null,
+      cac: nuevos ? redondear(150 / nuevos) : null,
+      nuevos: nuevos,
+      costoInsumos: costo,
+      gastosFijos: fijos,
+      resultado: redondear(venta - costo - fijos),
+      merma: comprado ? Math.round((perdido / comprado) * 100) : null,
+      opinion: opiniones.length ? redondear(opiniones.reduce(function (suma, pedido) { return suma + pedido.calificacion.puntaje; }, 0) / opiniones.length) : null,
+      opiniones: opiniones.length,
+      cumplimiento: conFecha.length ? Math.round((aTiempo / conFecha.length) * 100) : null,
+      bajaRotacion: datos.productos.filter(function (producto) { return producto.rotacion === "baja" && producto.tipo === "estandar"; }),
+      horaFuerte: horaFuerte,
+      horaFloja: horaFloja,
+      segmento: segmentos[0] || null,
+      produccion: {
+        manana: Math.round((manana / franjasTotal) * 100),
+        tarde: Math.round((tarde / franjasTotal) * 100),
+        noche: Math.round((noche / franjasTotal) * 100),
+      },
+    };
+  }
+
   window.Pasteleria = {
     MAX_TAREAS: MAX_TAREAS,
     ANTICIPO: ANTICIPO,
@@ -705,5 +1181,16 @@
     enviarCampana: enviarCampana,
     resumen: resumen,
     puntosDe: puntosDe,
+    validarUsuario: validarUsuario,
+    guardarPerfil: guardarPerfil,
+    guardarProveedor: guardarProveedor,
+    crearOrden: crearOrden,
+    enviarOrden: enviarOrden,
+    recibirOrden: recibirOrden,
+    anularOrden: anularOrden,
+    pagarCuenta: pagarCuenta,
+    registrarGasto: registrarGasto,
+    guardarProducto: guardarProducto,
+    reporte: reporte,
   };
 })();

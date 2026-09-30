@@ -50,7 +50,8 @@
             '<button type="submit"' + (bajos.length ? " disabled" : "") + '>Confirmar encargo</button>' +
           '</form>' +
         '</div>';
-      document.getElementById("cliente-activo").addEventListener("change", function (evento) {
+      const selectorPedido = document.getElementById("cliente-activo");
+      if (selectorPedido) selectorPedido.addEventListener("change", function (evento) {
         UI.fijarClienteActivo(evento.target.value);
       });
       document.getElementById("estandar").addEventListener("submit", function (evento) {

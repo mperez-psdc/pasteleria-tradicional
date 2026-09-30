@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Resultados · Pastelería Tradicional</title>
+  <link rel="stylesheet" href="../css/estilos.css">
+</head>
+<body>
+  <div id="marco"></div>
+  <script src="../js/datos.js"></script>
+  <script src="../js/comun.js"></script>
+  <script>
+    const UI = PasteleriaUI;
+    const Datos = Pasteleria;
+    if (UI.iniciar({ rol: "contador", titulo: "Estado de resultados", fase: "Fase 1" })) pintar(Datos.sumarDias(Datos.hoy(), -30), Datos.hoy());
+
+    function pintar(desde, hasta) {
+      const informe = Datos.reporte(desde, hasta);
+      UI.contenido().innerHTML =
+        '<p class="aviso warn">Resultado simple del periodo. Parte del historial es ilustrativo. No es un estado financiero auditado.</p>' +
+        '<form class="panel fila" id="periodo"><label>Desde<input type="date" name="desde" value="' + UI.esc(desde) + '"></label><label>Hasta<input type="date" name="hasta" value="' + UI.esc(hasta) + '"></label><button type="submit">Ver</button></form>' +
+        '<section class="panel" style="margin-top:1rem"><table><tbody>' +
+          "<tr><td>Ingresos</td><td>" + UI.esc(Datos.dinero(informe.venta)) + "</td></tr>" +
+          "<tr><td>Costo de insumos</td><td>" + UI.esc(Datos.dinero(informe.costoInsumos)) + "</td></tr>" +
+          "<tr><td>Gastos fijos</td><td>" + UI.esc(Datos.dinero(informe.gastosFijos)) + "</td></tr>" +
+          "<tr><th>Resultado</th><th>" + UI.esc(Datos.dinero(informe.resultado)) + "</th></tr>" +
+        "</tbody></table></section>";
+      document.getElementById("periodo").addEventListener("submit", function (evento) {
+        evento.preventDefault();
+        const forma = new FormData(evento.target);
+        pintar(forma.get("desde"), forma.get("hasta"));
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Proveedores · Pastelería Tradicional</title>
+  <link rel="stylesheet" href="../css/estilos.css">
+</head>
+<body>
+  <div id="marco"></div>
+  <script src="../js/datos.js"></script>
+  <script src="../js/comun.js"></script>
+  <script>
+    const UI = PasteleriaUI;
+    const Datos = Pasteleria;
+    if (UI.iniciar({ rol: "gerencia", titulo: "Proveedores", fase: "Fase 1" })) pintar();
+
+    function pintar() {
+      const datos = Datos.cargar();
+      const filas = datos.proveedores.map(function (proveedor) {
+        return "<tr><td>" + UI.esc(proveedor.nombre) + "</td><td>" + UI.esc(proveedor.contacto || "—") + "</td><td>" + proveedor.plazoDias + " días</td></tr>";
+      }).join("");
+      UI.contenido().innerHTML =
+        '<p class="ayuda">El proveedor no es dueño de los datos de los clientes. Aquí solo queda a quién se le compra insumo y en cuántos días se le paga.</p>' +
+        '<div class="rejilla-2"><form class="panel" id="alta"><h2>Nuevo proveedor</h2><label>Nombre<input name="nombre" required maxlength="80"></label><label>Contacto<input name="contacto" maxlength="40"></label><label>Plazo de pago (días)<input type="number" name="plazo" min="0" step="1" value="15" required></label><button type="submit">Guardar</button></form>' +
+        '<section class="panel"><h2>Lista</h2><div class="tabla-wrap"><table><thead><tr><th>Nombre</th><th>Contacto</th><th>Plazo</th></tr></thead><tbody>' + filas + "</tbody></table></div></section></div>";
+      document.getElementById("alta").addEventListener("submit", function (evento) {
+        evento.preventDefault();
+        const forma = new FormData(evento.target);
+        const resultado = Datos.guardarProveedor({ nombre: forma.get("nombre"), contacto: forma.get("contacto"), plazoDias: forma.get("plazo") });
+        if (!resultado.ok) {
+          UI.mensaje(resultado.error, "error");
+          return;
+        }
+        pintar();
+        UI.mensaje("Proveedor guardado.", "ok");
+      });
+    }
+  </script>
+</body>
+</html>

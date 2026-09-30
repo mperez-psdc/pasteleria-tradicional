@@ -186,7 +186,61 @@ th { font-size: 0.78rem; letter-spacing: 0.04em; text-transform: uppercase; colo
   font-size: 0.85rem;
 }
 
-@media (max-width: 720px) {
+.app { display: flex; min-height: 100vh; align-items: stretch; }
+.lado {
+  width: 250px;
+  flex: none;
+  background: var(--cocoa-dark);
+  color: #f8f1ea;
+  padding: 1rem 0.8rem 2rem;
+}
+.marca-lado, .marca-login {
+  color: #fff;
+  font-family: Georgia, serif;
+  font-size: 1.2rem;
+  text-decoration: none;
+  display: block;
+  margin: 0.2rem 0.4rem 1rem;
+}
+.marca-login { color: var(--cocoa-dark); font-size: 1rem; margin: 0 0 0.4rem; }
+.menu-lado { display: flex; flex-direction: column; gap: 0.2rem; }
+.menu-lado a {
+  color: #f8f1ea;
+  text-decoration: none;
+  border-radius: 10px;
+  padding: 0.35rem 0.55rem;
+  font-size: 0.92rem;
+}
+.menu-lado a[aria-current="page"] { background: #fff; color: var(--cocoa-dark); }
+.grupo-nav {
+  margin: 0.85rem 0.4rem 0.2rem;
+  color: #e4d3c4;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.cuerpo { flex: 1; min-width: 0; }
+.cuerpo .cabecera { border-bottom: 1px solid rgba(255,255,255,0.08); }
+.cuerpo .pagina, .cuerpo .aviso, .cuerpo .banner-red, .cuerpo .pie { width: min(1100px, calc(100% - 2rem)); }
+.login { min-height: 100vh; display: grid; place-items: center; padding: 1.5rem; }
+.barras { display: flex; align-items: flex-end; gap: 0.35rem; min-height: 160px; }
+.barra-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.25rem; min-width: 0; }
+.barra {
+  width: 100%;
+  background: var(--cocoa);
+  border-radius: 6px 6px 0 0;
+  min-height: 2px;
+}
+.barra.alt { background: #c4a574; }
+.barra-col span { font-size: 0.72rem; color: var(--muted); }
+.dona { width: 140px; height: 140px; }
+.sugerencia { border-left: 3px solid var(--gold); padding-left: 0.7rem; margin: 0.8rem 0; }
+
+@media (max-width: 860px) {
+  .app { flex-direction: column; }
+  .lado { width: auto; }
+  .menu-lado { flex-direction: row; flex-wrap: wrap; }
+  .grupo-nav { width: 100%; }
   .cabecera { align-items: flex-start; }
   h1 { font-size: 1.45rem; }
 }

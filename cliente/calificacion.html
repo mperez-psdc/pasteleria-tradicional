@@ -53,7 +53,8 @@
         }).join("");
         lista.insertAdjacentHTML("beforeend", '<div class="panel" style="margin-top:1rem"><h2>Ya calificados</h2><div class="tabla-wrap"><table><thead><tr><th>Pedido</th><th>Nota</th><th>Comentario</th></tr></thead><tbody>' + filas + "</tbody></table></div></div>");
       }
-      document.getElementById("cliente-activo").addEventListener("change", function (evento) {
+      const selectorNota = document.getElementById("cliente-activo");
+      if (selectorNota) selectorNota.addEventListener("change", function (evento) {
         UI.fijarClienteActivo(evento.target.value);
         pintar();
       });

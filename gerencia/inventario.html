@@ -35,17 +35,40 @@
       const mermas = datos.mermas.slice().reverse().map(function (merma) {
         return "<li>" + UI.esc(Datos.fechaCorta(merma.fecha)) + " · " + UI.esc(merma.nombre) + " · " + merma.cantidad + " " + UI.esc(merma.unidad) + " · " + UI.esc(merma.motivo) + "</li>";
       }).join("");
+      const nombres = {};
+      datos.insumos.forEach(function (insumo) { nombres[insumo.id] = insumo.nombre; });
+      datos.productos.forEach(function (producto) { nombres[producto.id] = producto.nombre; });
+      const kardex = (datos.movimientos || []).slice().reverse().slice(0, 25).map(function (mov) {
+        const quien = nombres[mov.insumoId] || nombres[mov.productoId] || "—";
+        return "<tr><td>" + UI.esc(Datos.fechaCorta(mov.fecha)) + "</td><td>" + UI.esc(mov.tipo) + "</td><td>" + UI.esc(quien) + "</td><td>" + mov.cantidad + "</td><td>" + UI.esc(mov.nota || "") + "</td></tr>";
+      }).join("");
+      const opcionesProducto = datos.productos.filter(function (producto) { return producto.tipo === "estandar"; }).map(function (producto) {
+        return '<option value="' + UI.esc(producto.id) + '">' + UI.esc(producto.nombre) + "</option>";
+      }).join("");
       UI.contenido().innerHTML =
-        '<p class="ayuda">Producto terminado e insumos. Reponer mantequilla, si está bajo el mínimo, vuelve a permitir fechas de encargo.</p>' +
+        '<p class="ayuda">La vitrina y los insumos. La entrada por orden de compra está en Compras. Aquí queda el ajuste, la merma y el kardex. Si la mantequilla está bajo el mínimo, no se prometen encargos a medida.</p>' +
         '<div class="rejilla-2">' +
           '<section class="panel"><h2>Vitrina</h2><div class="tabla-wrap"><table><thead><tr><th>Producto</th><th>Existencia</th><th>Precio</th></tr></thead><tbody>' + productos + "</tbody></table></div></section>" +
           '<section class="panel"><h2>Insumos</h2><div class="tabla-wrap"><table><thead><tr><th>Insumo</th><th>Hay</th><th>Mínimo</th><th>Vence</th><th>Aviso</th></tr></thead><tbody>' + insumos + "</tbody></table></div></section>" +
         "</div>" +
         '<div class="rejilla-2" style="margin-top:1rem">' +
-          '<form class="panel" id="reponer"><h2>Registrar compra</h2><label>Insumo<select name="insumo">' + opciones + '</select></label><label>Cantidad que entró<input type="number" name="cantidad" min="0.1" step="0.1" value="2" required></label><button type="submit">Sumar al inventario</button></form>' +
+          '<form class="panel" id="ajuste"><h2>Ajuste de vitrina</h2><label>Producto<select name="producto">' + opcionesProducto + '</select></label><label>Existencia<input type="number" name="stock" min="0" step="1" value="0" required></label><label>Precio<input type="number" name="precio" min="0.01" step="0.01" value="1" required></label><button type="submit">Guardar ajuste</button></form>' +
+          '<form class="panel" id="reponer"><h2>Entrada manual de insumo</h2><label>Insumo<select name="insumo">' + opciones + '</select></label><label>Cantidad que entró<input type="number" name="cantidad" min="0.1" step="0.1" value="2" required></label><button type="submit">Sumar al inventario</button></form>' +
           '<form class="panel" id="merma"><h2>Registrar merma</h2><label>Insumo<select name="insumo">' + opciones + '</select></label><label>Cantidad perdida<input type="number" name="cantidad" min="0.1" step="0.1" value="0.5" required></label><label>Motivo<input name="motivo" required maxlength="140" value="Se pasó la fecha de uso"></label><button type="submit" class="peligro">Anotar merma</button></form>' +
         "</div>" +
+        '<section class="panel" style="margin-top:1rem"><h2>Kardex</h2><div class="tabla-wrap"><table><thead><tr><th>Fecha</th><th>Tipo</th><th>Ítem</th><th>Cantidad</th><th>Nota</th></tr></thead><tbody>' + (kardex || "<tr><td colspan='5'>Sin movimientos.</td></tr>") + "</tbody></table></div></section>" +
         '<section class="panel" style="margin-top:1rem"><h2>Mermas anotadas</h2>' + (mermas ? "<ul class='lista'>" + mermas + "</ul>" : "<p>Todavía no hay mermas registradas.</p>") + "</section>";
+      document.getElementById("ajuste").addEventListener("submit", function (evento) {
+        evento.preventDefault();
+        const forma = new FormData(evento.target);
+        const resultado = Datos.guardarProducto({ id: forma.get("producto"), stock: forma.get("stock"), precio: forma.get("precio") });
+        if (!resultado.ok) {
+          UI.mensaje(resultado.error, "error");
+          return;
+        }
+        pintar();
+        UI.mensaje("Vitrina actualizada.", "ok");
+      });
       document.getElementById("reponer").addEventListener("submit", function (evento) {
         evento.preventDefault();
         const forma = new FormData(evento.target);

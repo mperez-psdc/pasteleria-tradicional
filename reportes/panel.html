@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reportes · Pastelería Tradicional</title>
+  <link rel="stylesheet" href="../css/estilos.css">
+</head>
+<body>
+  <div id="marco"></div>
+  <script src="../js/datos.js"></script>
+  <script src="../js/comun.js"></script>
+  <script>
+    const UI = PasteleriaUI;
+    const Datos = Pasteleria;
+    if (UI.iniciar({ rol: "contador", titulo: "Panel de reportes", fase: "Fase 1" })) {
+      pintar(Datos.sumarDias(Datos.hoy(), -365), Datos.hoy());
+    }
+
+    function barras(filas, maximo) {
+      const tope = Math.max(1, maximo);
+      return '<div class="barras">' + filas.map(function (fila) {
+        const alto = Math.round((fila.total / tope) * 140);
+        const mujeres = fila.total ? Math.round((fila.mujeres / fila.total) * alto) : 0;
+        return '<div class="barra-col" title="' + fila.hora + ' h"><div style="display:flex;flex-direction:column-reverse;height:' + alto + 'px;width:100%"><div class="barra" style="height:' + mujeres + 'px"></div><div class="barra alt" style="height:' + (alto - mujeres) + 'px"></div></div><span>' + fila.hora + "</span></div>";
+      }).join("") + "</div>";
+    }
+
+    function pintar(desde, hasta) {
+      const informe = Datos.reporte(desde, hasta);
+      const maxHora = Math.max.apply(null, informe.horas.map(function (hora) { return hora.total; }).concat([1]));
+      const maxEdad = Math.max.apply(null, informe.edades.map(function (fila) { return fila.mujeres + fila.hombres; }).concat([1]));
+      const edades = informe.edades.map(function (fila) {
+        return '<div style="display:grid;grid-template-columns:4.2rem 1fr 1fr;gap:0.4rem;align-items:center;margin:0.35rem 0"><span>' + fila.rango + '</span><div class="barra" style="height:14px;width:' + Math.round((fila.mujeres / maxEdad) * 100) + '%"></div><div class="barra alt" style="height:14px;width:' + Math.round((fila.hombres / maxEdad) * 100) + '%"></div></div>';
+      }).join("");
+      const meses = Object.keys(informe.meses).sort();
+      const maxMes = Math.max.apply(null, meses.map(function (mes) { return informe.meses[mes]; }).concat([1]));
+      const estacional = '<div class="barras">' + meses.map(function (mes) {
+        const alto = Math.round((informe.meses[mes] / maxMes) * 120);
+        return '<div class="barra-col"><div class="barra" style="height:' + alto + 'px"></div><span>' + mes.slice(5) + "</span></div>";
+      }).join("") + "</div>";
+      const totalLaboral = informe.laboral.reduce(function (suma, fila) { return suma + fila.visitas; }, 0) || 1;
+      const trabaja = informe.laboral.find(function (fila) { return fila.clave === "trabaja"; });
+      const nombres = { trabaja: "Trabajan", estudia: "Estudian", jubilado: "Jubilados" };
+      const fuerte = informe.horaFuerte || { hora: "—", total: 0 };
+      const floja = informe.horaFloja || { hora: "—", total: 0 };
+      const segmento = informe.segmento || { etiqueta: "Sin datos", venta: 0 };
+      const decision =
+        '<div class="sugerencia"><h3>Refuerce la franja de mayor afluencia</h3><p>A las ' + fuerte.hora + ':00 se concentran ' + fuerte.total + ' visitas del periodo. El primer horneado tiene que estar listo antes de esa hora.</p></div>' +
+        '<div class="sugerencia"><h3>Aproveche la franja floja</h3><p>A las ' + floja.hora + ':00 hay menos gente (' + floja.total + '). Ahí caben combos y el retiro de encargos, sin llenar el mostrador en la hora pico.</p></div>' +
+        '<div class="sugerencia"><h3>Cuide el segmento que más aporta</h3><p>' + UI.esc(segmento.etiqueta) + ' suma ' + UI.esc(Datos.dinero(segmento.venta)) + '. El surtido y la foto de vitrina deberían hablarle a ese grupo, sin obligar al resto a registrarse.</p></div>' +
+        '<div class="sugerencia"><h3>Producción sugerida por franja</h3><p>Mañana ' + informe.produccion.manana + ' %, mediodía ' + informe.produccion.tarde + ' %, tarde ' + informe.produccion.noche + ' %. Es una proporción de las visitas, no una orden de horno cerrada.</p></div>';
+      UI.contenido().innerHTML =
+        '<p class="aviso warn">Los datos de edad, sexo, ocupación y el historial de meses son ilustrativos, para mostrar cómo se leería el negocio. La segmentación real usaría datos agregados y con consentimiento, según la Ley 81. No identifica a una persona en la decisión.</p>' +
+        '<form class="panel fila" id="periodo"><label>Desde<input type="date" name="desde" value="' + UI.esc(desde) + '"></label><label>Hasta<input type="date" name="hasta" value="' + UI.esc(hasta) + '"></label><button type="submit">Actualizar</button>' +
+        (UI.rolActual() === "admin" ? '<button type="button" class="secundario" id="restaurar">Restaurar ejemplo</button>' : "") + "</form>" +
+        '<div class="tarjetas" style="margin-top:1rem">' +
+          '<article class="tarjeta"><p class="ayuda">Ventas del periodo</p><p class="kpi">' + UI.esc(Datos.dinero(informe.venta)) + '</p></article>' +
+          '<article class="tarjeta"><p class="ayuda">Clientes activos</p><p class="kpi">' + informe.activos + '</p></article>' +
+          '<article class="tarjeta"><p class="ayuda">Visitas por cliente</p><p class="kpi">' + informe.visitasPorCliente + '</p></article>' +
+          '<article class="tarjeta"><p class="ayuda">Ticket promedio</p><p class="kpi">' + UI.esc(Datos.dinero(informe.ticket)) + '</p></article>' +
+        "</div>" +
+        '<div class="rejilla-2" style="margin-top:1rem">' +
+          '<section class="panel"><h2>Visitas por hora</h2><p class="ayuda">Café: mujeres. Dorado: hombres.</p>' + barras(informe.horas, maxHora) + "</section>" +
+          '<section class="panel"><h2>Decisiones sugeridas</h2><p class="ayuda">Salen de estos mismos números. No se recalculan solas fuera de esta pantalla.</p>' + decision + "</section>" +
+        "</div>" +
+        '<div class="rejilla-2" style="margin-top:1rem">' +
+          '<section class="panel"><h2>Clientes por edad y sexo</h2><p class="ayuda">Izquierda mujeres, derecha hombres.</p>' + edades + "</section>" +
+          '<section class="panel"><h2>Situación laboral</h2><p class="kpi">' + Math.round((trabaja.visitas / totalLaboral) * 100) + '%</p><p class="ayuda">trabaja, del total de visitas con dato.</p><ul class="lista">' + informe.laboral.map(function (fila) { return "<li>" + nombres[fila.clave] + ": " + fila.visitas + " visitas, ticket " + UI.esc(Datos.dinero(fila.ticket)) + "</li>"; }).join("") + "</ul></section>" +
+        "</div>" +
+        '<section class="panel" style="margin-top:1rem"><h2>Estacionalidad</h2><p class="ayuda">Visitas por mes dentro del periodo.</p>' + estacional + "</section>" +
+        '<div class="tarjetas" style="margin-top:1rem">' +
+          '<article class="tarjeta"><p class="ayuda">Recompra</p><p class="kpi">' + (informe.recompra === null ? "—" : informe.recompra + "%") + '</p></article>' +
+          '<article class="tarjeta"><p class="ayuda">CAC ilustrativo</p><p class="kpi">' + (informe.cac === null ? "—" : UI.esc(Datos.dinero(informe.cac))) + '</p><p class="ayuda">Supone 150 dólares de pauta entre clientes nuevos del periodo.</p></article>' +
+          '<article class="tarjeta"><p class="ayuda">Merma</p><p class="kpi">' + (informe.merma === null ? "—" : informe.merma + "%") + '</p></article>' +
+          '<article class="tarjeta"><p class="ayuda">Entregas a tiempo</p><p class="kpi">' + (informe.cumplimiento === null ? "—" : informe.cumplimiento + "%") + '</p></article>' +
+          '<article class="tarjeta"><p class="ayuda">Opinión</p><p class="kpi">' + (informe.opinion === null ? "—" : informe.opinion + "/5") + '</p></article>' +
+          '<article class="tarjeta"><p class="ayuda">Resultado simple</p><p class="kpi">' + UI.esc(Datos.dinero(informe.resultado)) + '</p></article>' +
+        "</div>";
+      document.getElementById("periodo").addEventListener("submit", function (evento) {
+        evento.preventDefault();
+        const forma = new FormData(evento.target);
+        pintar(forma.get("desde"), forma.get("hasta"));
+      });
+      const restaurar = document.getElementById("restaurar");
+      if (restaurar) {
+        restaurar.addEventListener("click", function () {
+          Datos.restaurar();
+          pintar(Datos.sumarDias(Datos.hoy(), -365), Datos.hoy());
+          UI.mensaje("Volvió el ejemplo: historia de un año, orden enviada, cuenta por pagar y la luz vencida.", "ok");
+        });
+      }
+    }
+  </script>
+</body>
+</html>

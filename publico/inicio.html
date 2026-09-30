@@ -32,6 +32,10 @@
               '<label>Nombre<input name="nombre" required maxlength="80" autocomplete="name"></label>' +
               '<label>Teléfono<input name="telefono" required maxlength="20" autocomplete="tel"></label>' +
               '<label>Correo, si quiere<input name="correo" type="email" maxlength="80" autocomplete="email"></label>' +
+              '<p class="ayuda">Estos tres datos son opcionales. Sirven para ver el conjunto de clientes, no para identificar a una persona en un aviso. No sustituyen el permiso de publicidad.</p>' +
+              '<label>Rango de edad<select name="rango"><option value="">Prefiero no decirlo</option><option>18-24</option><option>25-34</option><option>35-44</option><option>45-54</option><option>55+</option></select></label>' +
+              '<label>Sexo<select name="sexo"><option value="">Prefiero no decirlo</option><option value="F">Mujer</option><option value="M">Hombre</option></select></label>' +
+              '<label>Situación<select name="laboral"><option value="">Prefiero no decirlo</option><option value="trabaja">Trabaja</option><option value="estudia">Estudia</option><option value="jubilado">Jubilado</option></select></label>' +
               '<label class="checks"><input type="checkbox" name="permiso"> Acepto recibir ofertas y recordatorios. Si no marco la casilla, igual puedo encargar.</label>' +
               '<button type="submit">Guardar mis datos</button>' +
             '</form>' +
@@ -46,6 +50,9 @@
           telefono: forma.get("telefono"),
           correo: forma.get("correo"),
           consentimiento: forma.get("permiso") === "on",
+          rangoEdad: forma.get("rango"),
+          sexo: forma.get("sexo"),
+          laboral: forma.get("laboral"),
         });
         if (!resultado.ok) {
           UI.mensaje(resultado.error, "error");

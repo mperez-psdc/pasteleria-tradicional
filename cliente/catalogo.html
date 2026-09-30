@@ -30,7 +30,8 @@
         '<div class="panel">' + UI.htmlClienteActivo(datos) + '<p class="ayuda">El stock exacto se ve en mostrador y gerencia. Aquí solo se dice si se puede pedir.</p></div>' +
         '<div class="tarjetas" style="margin-top:1rem">' + cartas + '</div>' +
         '<p style="margin-top:1rem"><a class="boton" href="pedido.html">Hacer un pedido</a></p>';
-      document.getElementById("cliente-activo").addEventListener("change", function (evento) {
+      const selectorCatalogo = document.getElementById("cliente-activo");
+      if (selectorCatalogo) selectorCatalogo.addEventListener("change", function (evento) {
         UI.fijarClienteActivo(evento.target.value);
       });
     }

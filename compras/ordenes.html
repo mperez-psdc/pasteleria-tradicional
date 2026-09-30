@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Órdenes de compra · Pastelería Tradicional</title>
+  <link rel="stylesheet" href="../css/estilos.css">
+</head>
+<body>
+  <div id="marco"></div>
+  <script src="../js/datos.js"></script>
+  <script src="../js/comun.js"></script>
+  <script>
+    const UI = PasteleriaUI;
+    const Datos = Pasteleria;
+    if (UI.iniciar({ rol: "gerencia", titulo: "Órdenes de compra", fase: "Fase 1" })) {
+      UI.contenido().addEventListener("click", function (evento) {
+        const boton = evento.target.closest("[data-accion]");
+        if (!boton) return;
+        const id = boton.getAttribute("data-id");
+        const accion = boton.getAttribute("data-accion");
+        let resultado = null;
+        if (accion === "enviar") resultado = Datos.enviarOrden(id);
+        if (accion === "recibir") resultado = Datos.recibirOrden(id);
+        if (accion === "anular") resultado = Datos.anularOrden(id);
+        if (!resultado || !resultado.ok) {
+          UI.mensaje(resultado ? resultado.error : "No se pudo actualizar.", "error");
+          return;
+        }
+        const texto = accion === "recibir" ? "Recibida. El insumo entró y quedó la cuenta por pagar." : "Orden actualizada.";
+        pintar();
+        UI.mensaje(texto, "ok");
+      });
+      pintar();
+    }
+
+    function pintar() {
+      const datos = Datos.cargar();
+      const proveedores = datos.proveedores.map(function (proveedor) {
+        return '<option value="' + UI.esc(proveedor.id) + '">' + UI.esc(proveedor.nombre) + "</option>";
+      }).join("");
+      const insumos = datos.insumos.map(function (insumo) {
+        return '<option value="' + UI.esc(insumo.id) + '">' + UI.esc(insumo.nombre) + "</option>";
+      }).join("");
+      const filas = datos.ordenes.slice().reverse().map(function (orden) {
+        const proveedor = datos.proveedores.find(function (item) { return item.id === orden.proveedorId; });
+        const detalle = orden.lineas.map(function (linea) { return linea.cantidad + " " + linea.nombre; }).join(", ");
+        let accion = "";
+        if (orden.estado === "borrador") accion = '<button type="button" data-accion="enviar" data-id="' + UI.esc(orden.id) + '">Enviar</button> ';
+        if (orden.estado === "enviada") accion = '<button type="button" data-accion="recibir" data-id="' + UI.esc(orden.id) + '">Recibir</button> ';
+        if (orden.estado === "borrador" || orden.estado === "enviada") accion += '<button type="button" class="peligro" data-accion="anular" data-id="' + UI.esc(orden.id) + '">Anular</button>';
+        return "<tr><td>" + UI.esc(orden.numero) + "<br><span class='ayuda'>" + UI.esc(Datos.fechaCorta(orden.fecha)) + "</span></td><td>" + UI.esc(proveedor ? proveedor.nombre : "—") + "<br><span class='ayuda'>" + UI.esc(detalle) + "</span></td><td>" + UI.esc(Datos.dinero(orden.total)) + "</td><td><span class='pill-estado " + UI.esc(orden.estado) + "'>" + UI.esc(UI.estadoTexto(orden.estado)) + "</span></td><td>" + accion + "</td></tr>";
+      }).join("");
+      UI.contenido().innerHTML =
+        '<p class="ayuda">Borrador, enviada, recibida o anulada. Al recibirla entra al inventario y queda una cuenta por pagar. No es una factura del proveedor cargada al sistema fiscal.</p>' +
+        '<form class="panel" id="nueva"><h2>Nueva orden</h2><div class="rejilla-2"><label>Proveedor<select name="proveedor">' + proveedores + '</select></label><label>Insumo<select name="insumo">' + insumos + '</select></label><label>Cantidad<input type="number" name="cantidad" min="0.1" step="0.1" value="4" required></label><label>Costo unitario<input type="number" name="costo" min="0" step="0.01" value="2" required></label></div><button type="submit">Crear borrador</button></form>' +
+        '<section class="panel" style="margin-top:1rem"><div class="tabla-wrap"><table><thead><tr><th>Orden</th><th>Detalle</th><th>Total</th><th>Estado</th><th></th></tr></thead><tbody>' + filas + "</tbody></table></div></section>";
+      document.getElementById("nueva").addEventListener("submit", function (evento) {
+        evento.preventDefault();
+        const forma = new FormData(evento.target);
+        const resultado = Datos.crearOrden({
+          proveedorId: forma.get("proveedor"),
+          lineas: [{ insumoId: forma.get("insumo"), cantidad: forma.get("cantidad"), costo: forma.get("costo") }],
+        });
+        if (!resultado.ok) {
+          UI.mensaje(resultado.error, "error");
+          return;
+        }
+        pintar();
+        UI.mensaje(resultado.orden.numero + " quedó en borrador.", "ok");
+      });
+    }
+  </script>
+</body>
+</html>
